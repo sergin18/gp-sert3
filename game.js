@@ -1343,6 +1343,8 @@ function endGame() {
       ||
       '<p>Nenhum acontecimento de grande porte.</p>';
 
+  /* ---------- FINANÇAS ---------- */
+
   const F =
     financialReportData();
 
@@ -1390,58 +1392,51 @@ function endGame() {
       )}
 
     </div>`;
-     const score =
+
+  /* ---------- NOTA GERAL DO MANDATO ---------- */
+
+  const score =
     mandateScore();
 
   const scoreLabel =
     mandateScoreLabel(score);
 
-  const scoreDetails =
-    mandateScoreDetails();
+  const scoreColor =
+    score >= 8
+      ? 'good'
+      : score >= 6
+        ? 'mid'
+        : 'bad';
 
-const score =
-  mandateScore();
+  const mandateScoreHTML =
+    `<div class="mandate-result ${scoreColor}">
 
-const scoreLabel =
-  mandateScoreLabel(score);
-
-const scoreColor =
-  score >= 8
-    ? 'good'
-    : score >= 6
-      ? 'mid'
-      : 'bad';
-
-const mandateScoreHTML =
-  `<div class="mandate-result ${scoreColor}">
-
-    <div class="mandate-result-header">
-      <span>AVALIAÇÃO DO MANDATO</span>
-      <small>Desempenho geral da gestão</small>
-    </div>
-
-    <div class="mandate-score-circle">
-
-      <div class="mandate-score-value">
-        ${score.toFixed(1)}
-        <span>/10</span>
+      <div class="mandate-result-header">
+        <span>AVALIAÇÃO DO MANDATO</span>
+        <small>Desempenho geral da gestão</small>
       </div>
 
-    </div>
+      <div class="mandate-score-circle">
 
-    <div class="mandate-score-label">
-      ${scoreLabel}
-    </div>
+        <div class="mandate-score-value">
+          ${score.toFixed(1)}
+          <span>/10</span>
+        </div>
 
-    <div class="mandate-score-subtitle">
-      Resultado geral das áreas de gestão
-    </div>
+      </div>
 
-    <div class="mandate-areas">
+      <div class="mandate-score-label">
+        ${scoreLabel}
+      </div>
 
-      ${mandateScoreDetails()
-        .map(
-          d => {
+      <div class="mandate-score-subtitle">
+        Resultado geral das áreas de gestão
+      </div>
+
+      <div class="mandate-areas">
+
+        ${mandateScoreDetails()
+          .map(d => {
 
             const percent =
               Math.max(
@@ -1469,7 +1464,7 @@ const mandateScoreHTML =
                   </span>
 
                   <small>
-                    ${Math.round(d.weight * 100)}% do resultado
+                    Peso ${Math.round(d.weight * 100)}%
                   </small>
 
                 </div>
@@ -1485,13 +1480,14 @@ const mandateScoreHTML =
 
               </div>
             `;
-          }
-        )
-        .join('')}
+          })
+          .join('')}
 
-    </div>
+      </div>
 
-  </div>`;
+    </div>`;
+
+  /* ---------- TELA FINAL ---------- */
 
   $('#end').innerHTML =
     `<h1>FIM DO MANDATO</h1>
@@ -1504,15 +1500,35 @@ const mandateScoreHTML =
       ${big}
     </div>
 
+    ${mandateScoreHTML}
+
     ${financialStats}
-${mandateScoreHTML}
 
     <div class="stats">
-      ${st(S.dec, 'Decisões tomadas')}
-      ${st(S.evs, 'Eventos enfrentados')}
-      ${st(S.crises, 'Crises enfrentadas')}
-      ${st(fmt(S.spent), 'Investimentos realizados')}
-      ${st(fmt(S.gain), 'Economias e receitas extras')}
+      ${st(
+        S.dec,
+        'Decisões tomadas'
+      )}
+
+      ${st(
+        S.evs,
+        'Eventos enfrentados'
+      )}
+
+      ${st(
+        S.crises,
+        'Crises enfrentadas'
+      )}
+
+      ${st(
+        fmt(S.spent),
+        'Investimentos realizados'
+      )}
+
+      ${st(
+        fmt(S.gain),
+        'Economias e receitas extras'
+      )}
     </div>
 
     <h3>Relatório final</h3>
@@ -1537,6 +1553,7 @@ ${mandateScoreHTML}
       class="btns"
       style="justify-content:center"
     >
+
       <button
         class="btn main"
         id="again"
@@ -1557,6 +1574,7 @@ ${mandateScoreHTML}
       >
         Menu
       </button>
+
     </div>`;
 
   const d =
