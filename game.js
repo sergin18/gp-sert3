@@ -1399,54 +1399,99 @@ function endGame() {
   const scoreDetails =
     mandateScoreDetails();
 
-  const mandateScoreHTML =
-    `<div class="mandate-final-score">
+const score =
+  mandateScore();
 
-      <div class="mandate-score-title">
-        DESEMPENHO GERAL DO MANDATO
-      </div>
+const scoreLabel =
+  mandateScoreLabel(score);
 
-      <div class="mandate-score-number">
+const scoreColor =
+  score >= 8
+    ? 'good'
+    : score >= 6
+      ? 'mid'
+      : 'bad';
+
+const mandateScoreHTML =
+  `<div class="mandate-result ${scoreColor}">
+
+    <div class="mandate-result-header">
+      <span>AVALIAÇÃO DO MANDATO</span>
+      <small>Desempenho geral da gestão</small>
+    </div>
+
+    <div class="mandate-score-circle">
+
+      <div class="mandate-score-value">
         ${score.toFixed(1)}
         <span>/10</span>
       </div>
 
-      <div class="mandate-score-label">
-        ${scoreLabel}
-      </div>
-
-      <p>
-        Nota calculada a partir do desempenho final
-        das principais áreas de gestão.
-      </p>
-
     </div>
 
-    <h3>Composição da nota</h3>
+    <div class="mandate-score-label">
+      ${scoreLabel}
+    </div>
 
-    <div class="mandate-score-list">
+    <div class="mandate-score-subtitle">
+      Resultado geral das áreas de gestão
+    </div>
 
-      ${scoreDetails
+    <div class="mandate-areas">
+
+      ${mandateScoreDetails()
         .map(
-          d =>
-            `<div class="mandate-score-row">
+          d => {
 
-              <div>
-                <b>${d.label}</b>
-                <small>
-                  Peso: ${Math.round(d.weight * 100)}%
-                </small>
+            const percent =
+              Math.max(
+                0,
+                Math.min(
+                  100,
+                  d.value
+                )
+              );
+
+            const areaColor =
+              percent >= 70
+                ? 'good'
+                : percent >= 50
+                  ? 'mid'
+                  : 'bad';
+
+            return `
+              <div class="mandate-area">
+
+                <div class="mandate-area-top">
+
+                  <span>
+                    ${d.label}
+                  </span>
+
+                  <small>
+                    ${Math.round(d.weight * 100)}% do resultado
+                  </small>
+
+                </div>
+
+                <div class="mandate-bar">
+
+                  <div
+                    class="mandate-bar-fill ${areaColor}"
+                    style="width:${percent}%"
+                  ></div>
+
+                </div>
+
               </div>
-
-              <b>
-                ${d.value}/100
-              </b>
-
-            </div>`
+            `;
+          }
         )
         .join('')}
 
-    </div>`;
+    </div>
+
+  </div>`;
 
   $('#end').innerHTML =
     `<h1>FIM DO MANDATO</h1>
