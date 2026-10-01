@@ -523,17 +523,9 @@ function newGame(diff) {
    do economy.js.
 */
 
-function nextTurn() {
-
-  if (!S) {
-    return;
-  }
-
-  if (
-    S.turn >= 48
-  ) {
-    return endGame();
-  }
+/* Tudo que acontece ao virar o mês. Roda UMA vez por mês (S.closedTurn),
+   mesmo que o jogador salve e recarregue no meio do evento. */
+function processMonth() {
 
   const D =
     DIFF[S.diff] ||
@@ -674,11 +666,24 @@ function nextTurn() {
     S.minT = S.turn;
 
   }
+}
+
+function nextTurn() {
+
+  if (!S) {
+    return;
+  }
 
   if (
-    typeof save === 'function'
+    S.turn >= 48
   ) {
-    save();
+    return endGame();
+  }
+
+  if (S.closedTurn !== S.turn) {
+    processMonth();
+    S.closedTurn = S.turn;
+    if (typeof save === 'function') save();
   }
 
   render();
