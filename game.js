@@ -122,14 +122,7 @@ const fx = s => {
 
 /* ---------- CALENDÁRIO ---------- */
 
-function year() {
-  if (!S) return 1;
-
-  return Math.min(
-    4,
-    Math.floor(S.turn / 12) + 1
-  );
-}
+/* (removido: definido em economy.js/council.js) */
 
 
 /* ---------- ECONOMIA ---------- */
@@ -1386,226 +1379,13 @@ const show =
    CONSELHEIRO
 ================================================================ */
 
-const ADVISORS = {
+/* (removido: definido em economy.js/council.js) */
 
-  angelos: {
-    n: 'Ângelos Pereira',
-    ic: '🤝',
+/* (removido: definido em economy.js/council.js) */
 
-    rel: 2,
+/* (removido: definido em economy.js/council.js) */
 
-    proj: 1,
-
-    fin: -1,
-
-    vote: 2,
-
-    crise: 0,
-
-    desc:
-      'Tem experiência em articulação política e relações institucionais.',
-
-    comment: {
-      bal:
-        'Uma gestão precisa conversar com diferentes setores. Resultado também depende de articulação.',
-
-      proj:
-        'Antes de avançar, veja se existe apoio suficiente para sustentar a proposta.',
-
-      fin:
-        'Cuidado com decisões que parecem pequenas hoje, mas criam despesas depois.',
-
-      vote:
-        'Uma votação é também resultado das relações construídas ao longo do mandato.',
-
-      crise:
-        'Em momentos difíceis, diálogo e capacidade de negociação podem evitar que uma crise aumente.'
-    }
-  },
-
-  poli: {
-    n: 'Poli Fecheu',
-    ic: '📊',
-
-    rel: -1,
-
-    proj: 2,
-
-    fin: 2,
-
-    vote: -1,
-
-    crise: 1,
-
-    desc:
-      'Tem perfil voltado para planejamento, organização e controle administrativo.',
-
-    comment: {
-      bal:
-        'Planejamento não elimina os problemas, mas ajuda a escolher onde os recursos terão maior impacto.',
-
-      proj:
-        'Antes de executar, confira custo, prazo e capacidade de manutenção.',
-
-      fin:
-        'O caixa precisa ser acompanhado continuamente. Um gasto recorrente pode pesar mais que um investimento inicial.',
-
-      vote:
-        'A proposta precisa estar bem estruturada para atravessar todas as etapas.',
-
-      crise:
-        'Em uma crise, primeiro organize os recursos disponíveis e depois escolha a resposta.'
-    }
-  }
-};
-
-function adv() {
-
-  if (
-    S &&
-    S.advisor &&
-    ADVISORS[S.advisor]
-  ) {
-    return ADVISORS[S.advisor];
-  }
-
-  return {
-    n: 'Conselheiro',
-    ic: '💬',
-    rel: 0,
-    proj: 0,
-    fin: 0,
-    vote: 0,
-    crise: 0,
-    desc: '',
-    comment: {}
-  };
-}
-
-function advisorComment(type) {
-
-  const A =
-    adv();
-
-  return (
-    A.comment &&
-    A.comment[type]
-  ) ||
-  'Observe os efeitos da decisão antes de avançar.';
-}
-
-function chooseAdvisor() {
-
-  const modal =
-    $('#modal');
-
-  if (!modal) return;
-
-  modal.innerHTML = `
-    <h2>Escolha seu conselheiro</h2>
-
-    <p>
-      Durante o mandato, seu conselheiro
-      poderá influenciar diferentes áreas
-      da gestão.
-    </p>
-
-    <div class="diffs">
-
-      <button
-        class="opt"
-        data-advisor="angelos"
-      >
-        <span>
-          🤝 Ângelos Pereira
-          <small>
-            Articulação política e relações institucionais.
-          </small>
-        </span>
-      </button>
-
-      <button
-        class="opt"
-        data-advisor="poli"
-      >
-        <span>
-          📊 Poli Fecheu
-          <small>
-            Planejamento, organização e controle administrativo.
-          </small>
-        </span>
-      </button>
-
-    </div>
-  `;
-
-  openModal(
-    true,
-    'advisor-modal'
-  );
-
-  document
-    .querySelectorAll(
-      '[data-advisor]'
-    )
-    .forEach(btn => {
-
-      btn.onclick = () => {
-
-        const id =
-          btn.dataset.advisor;
-
-        S.advisor =
-          id;
-
-        if (
-          Array.isArray(
-            S.council
-          )
-        ) {
-
-          const A =
-            adv();
-
-          S.council
-            .forEach(v => {
-
-              if (
-                typeof v.rel !== 'number'
-              ) {
-                v.rel = 50;
-              }
-
-              v.rel =
-                clamp(
-                  v.rel +
-                  (Number(A.rel) || 0)
-                );
-
-            });
-
-        }
-
-        if (
-          typeof save === 'function'
-        ) {
-          save();
-        }
-
-        closeModal();
-
-        render();
-
-        toast(
-          'g',
-          'CONSELHEIRO ESCOLHIDO',
-          `${adv().n} agora faz parte da sua equipe.`
-        );
-
-      };
-
-    });
-}
+/* (removido: definido em economy.js/council.js) */
 
 
 /* ================================================================
@@ -2233,37 +2013,7 @@ function report() {
    LEGADO / RESUMO
 ================================================================ */
 
-function legacy() {
-
-  if (!S) {
-    return '';
-  }
-
-  const score =
-    mandateScore();
-
-  return `
-    <div class="legacy">
-
-      <h3>Resumo da gestão</h3>
-
-      <p>
-        O mandato terminou após
-        4 anos de decisões,
-        investimentos,
-        eventos e desafios administrativos.
-      </p>
-
-      <p>
-        Nota geral do mandato:
-        <strong>
-          ${score.toFixed(1)}/10
-        </strong>
-      </p>
-
-    </div>
-  `;
-}
+/* (removido: definido em economy.js/council.js) */
 
 
 /* ================================================================
