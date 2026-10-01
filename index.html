@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sertânia: Desafio de Gestão 2.0</title>
+<meta name="description" content="Simulação educativa fictícia de gestão pública municipal inspirada em um município do sertão pernambucano.">
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<section id="home" class="screen">
+  <div class="sun"></div>
+  <div class="hills"></div>
+  <div class="hero">
+    <h1>SERTÂNIA</h1>
+    <h2>DESAFIO DE GESTÃO · 2.0</h2>
+    <p class="sub">Você recebeu as chaves da cidade. Agora precisa decidir o que fazer com elas.</p>
+    <p class="txt">“Administre recursos, enfrente imprevistos, escolha suas prioridades e descubra as consequências das suas decisões.”</p>
+    <div class="btns">
+      <button id="bContinue" class="btn main" hidden>CONTINUAR MANDATO</button>
+      <button id="bNew" class="btn main">NOVO MANDATO</button>
+      <button id="bHow" class="btn">COMO JOGAR</button>
+      <button id="bAbout" class="btn">SOBRE O SIMULADOR</button>
+      <button id="bErase" class="btn ghost" hidden>APAGAR PROGRESSO</button>
+    </div>
+    <p class="note">Simulação educativa fictícia inspirada na realidade de um município do sertão pernambucano.</p>
+  </div>
+  <footer class="credit">Desenvolvido por Serg!n</footer>
+</section>
+
+<section id="game" class="screen" hidden>
+  <header class="top">
+    <div>
+      <div class="brand">PREFEITURA DE SERTÂNIA</div>
+      <div id="date" class="date"></div>
+    </div>
+    <div class="money">
+      <span>Orçamento disponível</span>
+      <strong id="budget"></strong>
+    </div>
+    <button id="bMenu" class="btn small">Menu</button>
+  </header>
+  <nav class="nav" id="nav" aria-label="Gestão"><button data-act="cam">🏛️ Câmara</button><button data-act="proj">📋 Projetos</button><button data-act="cons">🧑‍💼 Conselheiro</button><button data-act="trib">📰 Tribuna do Mocotó</button></nav>
+  <main class="grid">
+    <div class="col">
+      <div class="card scene">
+        <h3>Mapa do município</h3>
+        <div class="map" id="map">
+          <div class="wx" id="wx" title="Clima e humor da população"></div><span class="walker">🚶</span><span class="walker">🐐</span>
+          <div id="a-centro" class="z">Centro urbano</div>
+          <div id="a-bairros" class="z">Bairros</div>
+          <div id="a-rural" class="z">Zona rural</div>
+          <div id="a-comunid" class="z">Comunidades rurais</div>
+          <div id="a-estradas" class="z">Estradas</div>
+        </div>
+      </div>
+      <div id="inds" class="inds"></div>
+      <div class="card" id="gov" style="margin-top:14px"></div>
+      <button id="bNext" class="btn main big">Avançar para o próximo mês</button>
+    </div>
+    <aside class="side">
+      <div class="card fin">
+        <h3>Finanças do mandato</h3>
+        <dl>
+          <dt>Receitas</dt><dd id="fRec"></dd>
+          <dt>Gastos no mandato</dt><dd id="fGas"></dd>
+          <dt>Despesas previstas (mês)</dt><dd id="fDes"></dd>
+          <dt>Receita prevista (mês)</dt><dd id="fRev"></dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3>📰 Tribuna do Mocotó</h3>
+        <ul id="feed" class="feed"></ul>
+        <button class="btn small" data-act="trib">Abrir Tribuna</button>
+      </div>
+    </aside>
+  </main>
+</section>
+
+<section id="end" class="screen" hidden></section>
+
+<div id="overlay" class="overlay" hidden><div id="modal" class="modal" role="dialog" aria-modal="true"></div></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="js/game.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/save.js"></script>
+<script src="js/news.js"></script>
+<script src="js/events.js"></script>
+<script src="js/council.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
