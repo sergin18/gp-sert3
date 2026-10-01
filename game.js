@@ -1460,6 +1460,7 @@ function endGame() {
     </div>
 
     ${financialStats}
+${mandateScoreHTML}
 
     <div class="stats">
       ${st(S.dec, 'Decisões tomadas')}
