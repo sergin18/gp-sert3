@@ -1,6 +1,6 @@
 'use strict';
 /* GAME — estado central, calendário, indicadores, interface e fim do mandato
-   Integração com ECONOMY 2.0 sem alterar o sistema original de calendário
+   Integração com ECONOMY 2.0 sem alterar o sistema original de calendário         
 */
 
 /* ---------- ESTADO E CONSTANTES ---------- */
@@ -1139,7 +1139,48 @@ function financialReportData() {
 }
 
 
-/* ---------- FINAL DO MANDATO ---------- */
+/* ---------- NOTA GERAL DO MANDATO ---------- */
+
+const MANDATE_WEIGHTS = {
+  s: .20, // Saúde
+  e: .20, // Educação
+  i: .15, // Infraestrutura
+  a: .10, // Abastecimento
+  m: .08, // Meio ambiente
+  c: .10, // Economia
+  r: .07, // Zona rural
+  t: .10  // Transparência
+};
+
+function mandateScore() {
+  let score = 0;
+
+  for (const k in MANDATE_WEIGHTS) {
+    score += (Number(S.ind[k]) || 0) * MANDATE_WEIGHTS[k];
+  }
+
+  return Math.max(0, Math.min(10, score / 10));
+}
+
+function mandateScoreLabel(score) {
+  if (score >= 9) return 'Excelente';
+  if (score >= 8) return 'Muito bom';
+  if (score >= 7) return 'Bom';
+  if (score >= 6) return 'Regular';
+  if (score >= 5) return 'Atenção';
+  return 'Crítico';
+}
+
+function mandateScoreDetails() {
+  return Object.entries(MANDATE_WEIGHTS)
+    .map(([k, weight]) => ({
+      key: k,
+      label: LBL[k],
+      value: Math.round(S.ind[k]),
+      weight,
+      contribution: (S.ind[k] || 0) * weight
+    }));
+}
 
 function report() {
   const cats =
@@ -1347,6 +1388,63 @@ function endGame() {
         fmt(F.amendments),
         'EMENDAS UTILIZADAS'
       )}
+
+    </div>`;
+     const score =
+    mandateScore();
+
+  const scoreLabel =
+    mandateScoreLabel(score);
+
+  const scoreDetails =
+    mandateScoreDetails();
+
+  const mandateScoreHTML =
+    `<div class="mandate-final-score">
+
+      <div class="mandate-score-title">
+        DESEMPENHO GERAL DO MANDATO
+      </div>
+
+      <div class="mandate-score-number">
+        ${score.toFixed(1)}
+        <span>/10</span>
+      </div>
+
+      <div class="mandate-score-label">
+        ${scoreLabel}
+      </div>
+
+      <p>
+        Nota calculada a partir do desempenho final
+        das principais áreas de gestão.
+      </p>
+
+    </div>
+
+    <h3>Composição da nota</h3>
+
+    <div class="mandate-score-list">
+
+      ${scoreDetails
+        .map(
+          d =>
+            `<div class="mandate-score-row">
+
+              <div>
+                <b>${d.label}</b>
+                <small>
+                  Peso: ${Math.round(d.weight * 100)}%
+                </small>
+              </div>
+
+              <b>
+                ${d.value}/100
+              </b>
+
+            </div>`
+        )
+        .join('')}
 
     </div>`;
 
