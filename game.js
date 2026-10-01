@@ -1,10 +1,23 @@
 'use strict';
 
-/* GAME — estado central, calendário, indicadores, interface e fim do mandato
-   Integração com ECONOMY 2.0 sem alterar o sistema original de calendário
-*/
+/* ================================================================
+   SERTÂNIA: DESAFIO DE GESTÃO
+   GAME.JS — estado central, calendário, interface e fim do mandato
 
-/* ---------- ESTADO E CONSTANTES ---------- */
+   IMPORTANTE:
+   - economy.js continua responsável pela Economia 2.0
+   - events.js continua responsável pelos eventos
+   - council.js continua responsável pela Câmara
+   - projects.js continua responsável pelos projetos
+   - news.js continua responsável pela Tribuna do Mocotó
+   - save.js continua responsável pelo salvamento
+   - main.js continua responsável pelos botões principais
+================================================================ */
+
+
+/* ================================================================
+   ESTADO E CONSTANTES
+================================================================ */
 
 const IND = [
   ['s','Saúde','🏥'],
@@ -20,9 +33,10 @@ const IND = [
 
 const K = IND.map(x => x[0]);
 
-const LBL = Object.fromEntries(
-  IND.map(x => [x[0], x[1]])
-);
+const LBL =
+  Object.fromEntries(
+    IND.map(x => [x[0], x[1]])
+  );
 
 const MES = [
   'Janeiro',
@@ -70,8 +84,16 @@ const DIFF = {
 
 let S = null;
 
+/*
+ * SK é utilizado pelo sistema de eventos/votação.
+ * Mantemos a variável global para compatibilidade.
+ */
+let SK = false;
 
-/* ---------- FUNÇÕES BÁSICAS ---------- */
+
+/* ================================================================
+   UTILITÁRIOS
+================================================================ */
 
 const $ = s =>
   document.querySelector(s);
@@ -100,11 +122,13 @@ const fx = s => {
   (s || '')
     .split(' ')
     .forEach(t => {
+
       if (t) {
         o[t[0]] =
           (o[t[0]] || 0) +
           parseFloat(t.slice(1));
       }
+
     });
 
   return o;
@@ -112,24 +136,38 @@ const fx = s => {
 
 
 /* ================================================================
-   ECONOMIA 2.0 — FUNÇÕES DE INTEGRAÇÃO
-   ================================================================ */
+   ECONOMIA 2.0 — INTEGRAÇÃO
+================================================================ */
+
+/*
+ * A economia NÃO é recriada aqui.
+ * economy.js continua sendo a fonte principal.
+ */
 
 function ensureGameEconomy() {
+
   if (!S) return;
 
-  if (typeof ensureEconomy === 'function') {
+  if (
+    typeof ensureEconomy === 'function'
+  ) {
     ensureEconomy();
   }
 }
 
 
-/* ---------- STATUS FINANCEIRO ---------- */
+/* ================================================================
+   SITUAÇÃO FINANCEIRA
+================================================================ */
 
 function financialStatus() {
+
   ensureGameEconomy();
 
-  if (!S || !S.economy) {
+  if (
+    !S ||
+    !S.economy
+  ) {
     return 'saudável';
   }
 
@@ -172,12 +210,18 @@ function financialStatus() {
 }
 
 
-/* ---------- CONSEQUÊNCIAS FINANCEIRAS ---------- */
+/* ================================================================
+   CONSEQUÊNCIAS FINANCEIRAS
+================================================================ */
 
 function applyFinancialConsequences() {
+
   ensureGameEconomy();
 
-  if (!S || !S.economy) {
+  if (
+    !S ||
+    !S.economy
+  ) {
     return;
   }
 
@@ -245,10 +289,16 @@ function applyFinancialConsequences() {
 }
 
 
-/* ---------- PRESSÃO FINANCEIRA NA CÂMARA ---------- */
+/* ================================================================
+   PRESSÃO FINANCEIRA SOBRE A CÂMARA
+================================================================ */
 
 function applyFinancialCouncilPressure() {
-  if (!S || !Array.isArray(S.council)) {
+
+  if (
+    !S ||
+    !Array.isArray(S.council)
+  ) {
     return;
   }
 
@@ -264,38 +314,32 @@ function applyFinancialCouncilPressure() {
 
   let pressure = 0;
 
-  if (cash <= 8000) {
+  if (cash <= 8000)
     pressure += .08;
-  }
 
-  if (cash <= 5000) {
+  if (cash <= 5000)
     pressure += .08;
-  }
 
-  if (cash <= 2500) {
+  if (cash <= 2500)
     pressure += .10;
-  }
 
-  if (deficit >= 2) {
+  if (deficit >= 2)
     pressure += .08;
-  }
 
-  if (deficit >= 3) {
+  if (deficit >= 3)
     pressure += .08;
-  }
 
-  if (deficit >= 4) {
+  if (deficit >= 4)
     pressure += .10;
-  }
 
   pressure =
     Math.min(.45, pressure);
 
-  if (pressure <= 0) {
+  if (pressure <= 0)
     return;
-  }
 
   S.council.forEach(v => {
+
     if (!v) return;
 
     if (
@@ -331,13 +375,17 @@ function applyFinancialCouncilPressure() {
           rnd(.05, .20)
         );
     }
+
   });
 }
 
 
-/* ---------- NOTÍCIAS FINANCEIRAS ---------- */
+/* ================================================================
+   NOTÍCIAS FINANCEIRAS
+================================================================ */
 
 function financialNews() {
+
   ensureGameEconomy();
 
   if (
@@ -348,7 +396,9 @@ function financialNews() {
     return;
   }
 
-  if (Math.random() > .14) {
+  if (
+    Math.random() > .14
+  ) {
     return;
   }
 
@@ -366,6 +416,7 @@ function financialNews() {
     Number(S.b) || 0;
 
   if (deficit >= 3) {
+
     publishNews(
       'Economia',
       'Contas municipais entram no radar',
@@ -379,6 +430,7 @@ function financialNews() {
     result > 0 &&
     cash > 8000
   ) {
+
     publishNews(
       'Economia',
       'Município fecha período com resultado positivo',
@@ -389,6 +441,7 @@ function financialNews() {
   }
 
   if (cash <= 2500) {
+
     publishNews(
       'Economia',
       'Caixa municipal exige atenção',
@@ -400,10 +453,16 @@ function financialNews() {
 
 /* ================================================================
    NOVO JOGO
-   ================================================================ */
+================================================================ */
 
 function newGame(diff) {
-  const D = DIFF[diff];
+
+  const D =
+    DIFF[diff];
+
+  if (!D) {
+    return;
+  }
 
   const ind = {};
 
@@ -425,6 +484,7 @@ function newGame(diff) {
     );
 
   S = {
+
     diff,
 
     b: D.b,
@@ -466,22 +526,21 @@ function newGame(diff) {
     advisor: null,
 
     council:
-      createCouncil(0),
+      typeof createCouncil === 'function'
+        ? createCouncil(0)
+        : [],
 
     projects: [],
-
     news: [],
-
     votes: [],
-
     unl: [],
-
     blocked: {},
-
     plN: 0,
 
     economy: {}
   };
+
+  SK = false;
 
   ensureGameEconomy();
 
@@ -492,16 +551,29 @@ function newGame(diff) {
 
 
 /* ================================================================
-   PRÓXIMO TURNO
-   ================================================================ */
+   CALENDÁRIO
+================================================================ */
 
 function nextTurn() {
-  if (S.turn >= 48) {
+
+  if (!S) return;
+
+  if (
+    S.turn >= 48
+  ) {
     return endGame();
   }
 
   const D =
     DIFF[S.diff];
+
+  /*
+   * IMPORTANTE:
+   *
+   * Não colocar S.turn++ aqui.
+   * closeMonth() é quem controla
+   * o avanço financeiro/calendário.
+   */
 
   ensureGameEconomy();
 
@@ -510,15 +582,17 @@ function nextTurn() {
   applyFinancialConsequences();
 
 
-  /* ---------- DESGASTE NATURAL ---------- */
+  /* DESGASTE NATURAL */
 
   ['s','e','i','a','r']
     .forEach(k => {
+
       S.ind[k] =
         clamp(
           S.ind[k] -
           rnd(.3, 1)
         );
+
     });
 
   S.ind.m =
@@ -528,7 +602,7 @@ function nextTurn() {
     );
 
 
-  /* ---------- APROVAÇÃO POPULAR ---------- */
+  /* APROVAÇÃO */
 
   const core =
     (
@@ -548,11 +622,14 @@ function nextTurn() {
     );
 
 
-  /* ---------- EVENTO DE IMPACTO ---------- */
+  /* EVENTO DE IMPACTO */
 
   if (
-    Math.random() < D.imp
+    Math.random() < D.imp &&
+    Array.isArray(IMP) &&
+    IMP.length
   ) {
+
     const m =
       IMP[
         Math.floor(
@@ -575,33 +652,49 @@ function nextTurn() {
   }
 
 
-  /* ---------- PROJETOS ---------- */
+  /* PROJETOS */
 
-  updateProjects();
+  if (
+    typeof updateProjects === 'function'
+  ) {
+    updateProjects();
+  }
 
 
-  /* ---------- CÂMARA ---------- */
+  /* CÂMARA */
 
-  S.council.forEach(v => {
-    v.sup *= .8;
+  if (
+    Array.isArray(S.council)
+  ) {
 
-    v.rel =
-      clamp(
-        v.rel +
-        (S.ind.p - 50) / 300 +
-        rnd(-.4, .4)
-      );
-  });
+    S.council.forEach(v => {
+
+      v.sup *= .8;
+
+      v.rel =
+        clamp(
+          v.rel +
+          (S.ind.p - 50) / 300 +
+          rnd(-.4, .4)
+        );
+
+    });
+  }
+
+
+  /* PRESSÃO FINANCEIRA */
 
   applyFinancialCouncilPressure();
 
 
-  /* ---------- NOTÍCIA ---------- */
+  /* NOTÍCIA POSITIVA */
 
   if (
     S.ind.p >= 70 &&
-    Math.random() < .12
+    Math.random() < .12 &&
+    typeof publishNews === 'function'
   ) {
+
     publishNews(
       'Prefeitura',
       'Gestão comemora novos investimentos',
@@ -609,45 +702,65 @@ function nextTurn() {
     );
   }
 
+
   financialNews();
 
 
-  /* ---------- MENOR CAIXA ---------- */
+  /* MENOR CAIXA */
 
   if (
     S.b < S.minB
   ) {
+
     S.minB = S.b;
     S.minT = S.turn;
   }
 
 
-  /* ---------- SAVE ---------- */
-
   save();
-
-
-  /* ---------- INTERFACE ---------- */
 
   render();
 
+  if (
+    typeof pick === 'function' &&
+    typeof showEvent === 'function'
+  ) {
+    showEvent(
+      pick()
+    );
+  }
+}
 
-  /* ---------- EVENTO ---------- */
 
-  showEvent(
-    pick()
+/* ================================================================
+   DATA / ANO
+================================================================ */
+
+function year() {
+
+  if (!S) {
+    return 1;
+  }
+
+  return Math.min(
+    4,
+    Math.floor(
+      S.turn / 12
+    ) + 1
   );
 }
 
 
 /* ================================================================
-   INTERFACE
-   ================================================================ */
+   FEED
+================================================================ */
 
 function feed(t) {
+
+  if (!S) return;
+
   S.feed.unshift({
     t,
-
     d:
       `Ano ${year()} — ${MES[S.turn % 12]}`
   });
@@ -657,7 +770,22 @@ function feed(t) {
 }
 
 
-function toast(k, title, text) {
+/* ================================================================
+   TOAST
+================================================================ */
+
+function toast(
+  k,
+  title,
+  text
+) {
+
+  const container =
+    $('#toasts');
+
+  if (!container)
+    return;
+
   const d =
     document.createElement('div');
 
@@ -669,13 +797,12 @@ function toast(k, title, text) {
     y: '🟡',
     r: '🔴',
     g: '🟢'
-  }[k];
+  }[k] || 'ℹ️';
 
   d.innerHTML =
     `<b>${ic} ${title}</b>${text}`;
 
-  $('#toasts')
-    .appendChild(d);
+  container.appendChild(d);
 
   setTimeout(
     () => d.remove(),
@@ -683,72 +810,145 @@ function toast(k, title, text) {
   );
 
   while (
-    $('#toasts')
-      .children.length > 3
+    container.children.length > 3
   ) {
-    $('#toasts')
-      .firstChild
-      .remove();
+    container.firstChild.remove();
   }
 }
 
 
-function openModal(lock, cls) {
-  $('#overlay').hidden =
-    false;
+/* ================================================================
+   MODAIS
+================================================================ */
 
-  $('#overlay')
-    .dataset.lock =
+function openModal(
+  lock,
+  cls
+) {
+
+  const overlay =
+    $('#overlay');
+
+  const modal =
+    $('#modal');
+
+  if (!overlay || !modal)
+    return;
+
+  overlay.hidden = false;
+
+  overlay.dataset.lock =
     lock ? 1 : '';
 
-  $('#modal').className =
+  modal.className =
     'modal ' +
     (cls || '');
 }
 
 
 function closeModal() {
-  $('#overlay').hidden =
-    true;
+
+  const overlay =
+    $('#overlay');
+
+  if (overlay) {
+    overlay.hidden = true;
+  }
 
   if (S) {
-    $('#bNext').disabled =
-      false;
+
+    const next =
+      $('#bNext');
+
+    if (next) {
+      next.disabled = false;
+    }
   }
 }
 
 
 function info(html) {
-  $('#modal').innerHTML =
+
+  const modal =
+    $('#modal');
+
+  if (!modal)
+    return;
+
+  modal.innerHTML =
     html +
     '<p><button class="btn main" id="cl">Fechar</button></p>';
 
   openModal(false);
 
-  $('#cl').onclick =
-    closeModal;
+  const cl =
+    $('#cl');
+
+  if (cl) {
+    cl.onclick =
+      closeModal;
+  }
+}
+
+
+function show(
+  html,
+  lock,
+  cls
+) {
+
+  const modal =
+    $('#modal');
+
+  if (!modal)
+    return;
+
+  modal.innerHTML =
+    html;
+
+  openModal(
+    lock,
+    cls
+  );
 }
 
 
 function hot(a) {
+
   document
     .querySelectorAll('.z')
     .forEach(z => {
+
       z.classList.toggle(
         'hot',
         z.id === 'a-' + a
       );
+
     });
 }
 
 
+/* ================================================================
+   INDICADORES
+================================================================ */
+
 function buildInds() {
-  $('#inds').innerHTML =
+
+  const container =
+    $('#inds');
+
+  if (!container)
+    return;
+
+  container.innerHTML =
     IND
       .map(x =>
         `<div class="ind" id="i-${x[0]}">
+
           <div class="h">
-            <span>${x[2]} ${x[1]}</span>
+            <span>
+              ${x[2]} ${x[1]}
+            </span>
           </div>
 
           <div class="v"></div>
@@ -756,6 +956,7 @@ function buildInds() {
           <div class="bar">
             <i></i>
           </div>
+
         </div>`
       )
       .join('');
@@ -763,65 +964,100 @@ function buildInds() {
 
 
 /* ================================================================
-   RENDER
-   ================================================================ */
+   RENDER PRINCIPAL
+================================================================ */
 
 function render() {
+
+  if (!S)
+    return;
+
   const y =
     year();
 
-  $('#date').textContent =
-    S.turn >= 48
-      ? 'Fim do mandato'
-      : `Ano ${y} — ${MES[S.turn % 12]}`;
+  const date =
+    $('#date');
 
-  $('#budget').textContent =
-    fmt(S.b);
+  if (date) {
 
+    date.textContent =
+      S.turn >= 48
+        ? 'Fim do mandato'
+        : `Ano ${y} — ${MES[S.turn % 12]}`;
+  }
+
+
+  const budget =
+    $('#budget');
+
+  if (budget) {
+    budget.textContent =
+      fmt(S.b);
+  }
+
+
+  /* INDICADORES */
 
   IND.forEach(x => {
-    const v =
-      Math.round(
-        S.ind[x[0]]
-      );
 
     const el =
       $('#i-' + x[0]);
 
-    if (!el) {
+    if (!el)
       return;
-    }
+
+    const v =
+      Math.round(
+        Number(
+          S.ind[x[0]]
+        ) || 0
+      );
+
+    const value =
+      el.querySelector('.v');
 
     const bar =
       el.querySelector('i');
 
-    el.querySelector('.v')
-      .textContent =
-      x[0] === 'p'
-        ? v + '%'
-        : v;
+    if (value) {
 
-    bar.style.width =
-      v + '%';
+      value.textContent =
+        x[0] === 'p'
+          ? v + '%'
+          : v;
+    }
 
-    bar.className =
-      v < 35
-        ? 'low'
-        : v < 60
-          ? 'mid'
-          : '';
+    if (bar) {
+
+      bar.style.width =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            v
+          )
+        ) + '%';
+
+      bar.className =
+        v < 35
+          ? 'low'
+          : v < 60
+            ? 'mid'
+            : '';
+    }
 
     const d =
       v -
       Math.round(
-        S.prev[x[0]]
+        Number(
+          S.prev[x[0]]
+        ) || 0
       );
 
     if (d) {
+
       const c =
-        document.createElement(
-          'span'
-        );
+        document.createElement('span');
 
       c.className =
         'chip ' +
@@ -844,32 +1080,58 @@ function render() {
   });
 
 
+  /* CIDADE */
+
   zones();
 
 
-  /* ---------- FINANÇAS EXISTENTES ---------- */
+  /* INDICADORES FINANCEIROS ANTIGOS */
 
-  $('#fRec').textContent =
-    fmt(S.rec);
+  const fRec =
+    $('#fRec');
 
-  $('#fGas').textContent =
-    fmt(
-      S.spent +
-      S.exp
-    );
+  if (fRec) {
+    fRec.textContent =
+      fmt(S.rec);
+  }
 
-  $('#fDes').textContent =
-    fmt(
-      expenses()
-    );
+  const fGas =
+    $('#fGas');
 
-  $('#fRev').textContent =
-    fmt(
-      revenue()
-    );
+  if (fGas) {
+    fGas.textContent =
+      fmt(
+        S.spent +
+        S.exp
+      );
+  }
+
+  const fDes =
+    $('#fDes');
+
+  if (fDes) {
+    fDes.textContent =
+      fmt(
+        typeof expenses === 'function'
+          ? expenses()
+          : 0
+      );
+  }
+
+  const fRev =
+    $('#fRev');
+
+  if (fRev) {
+    fRev.textContent =
+      fmt(
+        typeof revenue === 'function'
+          ? revenue()
+          : 0
+      );
+  }
 
 
-  /* ---------- ECONOMIA 2.0 ---------- */
+  /* ECONOMIA 2.0 */
 
   ensureGameEconomy();
 
@@ -917,49 +1179,79 @@ function render() {
   }
 
 
-  /* ---------- NOTÍCIAS ---------- */
+  /* NOTÍCIAS */
 
-  $('#feed').innerHTML =
-    S.news.length
+  const feedEl =
+    $('#feed');
 
-      ? S.news
-          .slice(0, 5)
-          .map(n =>
-            `<li>
-              ${NI[n.c] || '📰'} ${n.t}
+  if (feedEl) {
 
-              <small>
-                ${n.c} ·
-                ${MES[n.m]},
-                ano ${n.y}
-              </small>
-            </li>`
-          )
-          .join('')
+    feedEl.innerHTML =
+      S.news.length
 
-      : '<li>Nenhuma notícia ainda. Avance para o primeiro mês.</li>';
+        ? S.news
+            .slice(0, 5)
+            .map(n =>
+              `<li>
+                ${NI[n.c] || '📰'} ${n.t}
+                <small>
+                  ${n.c} · ${MES[n.m]}, ano ${n.y}
+                </small>
+              </li>`
+            )
+            .join('')
+
+        : '<li>Nenhuma notícia ainda. Avance para o primeiro mês.</li>';
+  }
 
 
-  renderGov();
+  /* GOVERNO */
+
+  if (
+    typeof renderGov === 'function'
+  ) {
+    renderGov();
+  }
 
 
-  $('#bNext').disabled =
-    !$('#overlay').hidden;
+  /* BOTÃO PRÓXIMO */
+
+  const next =
+    $('#bNext');
+
+  const overlay =
+    $('#overlay');
+
+  if (
+    next &&
+    overlay
+  ) {
+
+    next.disabled =
+      !overlay.hidden;
+  }
 }
 
 
 /* ================================================================
-   TELAS
-   ================================================================ */
+   TROCA DE TELA
+================================================================ */
 
 function screen(id) {
+
   [
     'home',
     'game',
     'end'
   ].forEach(s => {
-    $('#' + s).hidden =
-      s !== id;
+
+    const el =
+      $('#' + s);
+
+    if (el) {
+      el.hidden =
+        s !== id;
+    }
   });
 
   window.scrollTo(
@@ -969,7 +1261,15 @@ function screen(id) {
 }
 
 
+/* ================================================================
+   INÍCIO DO JOGO
+================================================================ */
+
 function startGame() {
+
+  if (!S)
+    return;
+
   ensureGameEconomy();
 
   screen('game');
@@ -984,37 +1284,74 @@ function startGame() {
   render();
 
   if (!S.advisor) {
-    chooseAdvisor();
+
+    if (
+      typeof chooseAdvisor === 'function'
+    ) {
+      chooseAdvisor();
+    }
 
   } else if (S.bal) {
-    balance();
 
-  } else if (S.turn >= 48) {
+    if (
+      typeof balance === 'function'
+    ) {
+      balance();
+    }
+
+  } else if (
+    S.turn >= 48
+  ) {
+
     endGame();
   }
 }
 
 
+/* ================================================================
+   MENU PRINCIPAL
+================================================================ */
+
 function home() {
+
   screen('home');
 
   const h =
-    hasSave();
+    typeof hasSave === 'function'
+      ? hasSave()
+      : false;
 
-  $('#bContinue').hidden =
-    !h;
+  const cont =
+    $('#bContinue');
 
-  $('#bErase').hidden =
-    !h;
+  const erase =
+    $('#bErase');
+
+  if (cont) {
+    cont.hidden =
+      !h;
+  }
+
+  if (erase) {
+    erase.hidden =
+      !h;
+  }
 }
 
 
 /* ================================================================
    ESCOLHA DE DIFICULDADE
-   ================================================================ */
+================================================================ */
 
 function pickDiff(cb) {
-  $('#modal').innerHTML =
+
+  const modal =
+    $('#modal');
+
+  if (!modal)
+    return;
+
+  modal.innerHTML =
     '<h3>Escolha a dificuldade</h3>' +
 
     '<div class="diffs">' +
@@ -1022,6 +1359,7 @@ function pickDiff(cb) {
     Object.keys(DIFF)
       .map(k =>
         `<button class="opt" data-d="${k}">
+
           <span>
             ${DIFF[k].n}
 
@@ -1033,6 +1371,7 @@ function pickDiff(cb) {
           <b>
             ${fmt(DIFF[k].b)}
           </b>
+
         </button>`
       )
       .join('') +
@@ -1047,29 +1386,52 @@ function pickDiff(cb) {
 
   openModal(false);
 
-  $('#cl').onclick =
-    closeModal;
+  const cl =
+    $('#cl');
+
+  if (cl) {
+    cl.onclick =
+      closeModal;
+  }
 
   document
     .querySelectorAll('[data-d]')
     .forEach(b => {
-      b.onclick =
-        () => {
-          closeModal();
-          cb(b.dataset.d);
-        };
+
+      b.onclick = () => {
+
+        closeModal();
+
+        if (
+          typeof cb === 'function'
+        ) {
+          cb(
+            b.dataset.d
+          );
+        }
+      };
+
     });
 }
 
 
 /* ================================================================
    SITUAÇÃO DO GOVERNO
-   ================================================================ */
+================================================================ */
 
 function renderGov() {
+
+  if (
+    !S ||
+    !Array.isArray(S.council)
+  ) {
+    return;
+  }
+
   const f =
     S.council.filter(
       v =>
+        typeof tend === 'function' &&
         tend(v, null) === 'yes'
     ).length;
 
@@ -1080,18 +1442,33 @@ function renderGov() {
     ).length;
 
   const avg =
-    S.council.reduce(
-      (a, v) =>
-        a + v.rel,
-      0
-    ) / 13;
+    S.council.length
+      ? S.council.reduce(
+          (a, v) =>
+            a +
+            (Number(v.rel) || 0),
+          0
+        ) /
+        S.council.length
+      : 0;
 
   const un =
     S.news.filter(
       n => n.n
     ).length;
 
-  $('#gov').innerHTML =
+  const gov =
+    $('#gov');
+
+  if (!gov)
+    return;
+
+  const relation =
+    typeof relLbl === 'function'
+      ? relLbl(avg).split(' ')[0]
+      : 'Estável';
+
+  gov.innerHTML =
     `<h3>Situação do governo</h3>
 
     <div class="gv">
@@ -1110,7 +1487,7 @@ function renderGov() {
 
       <div>
         <span>🤝 Relação institucional</span>
-        <b>${relLbl(avg).split(' ')[0]}</b>
+        <b>${relation}</b>
       </div>
 
       <div>
@@ -1123,29 +1500,22 @@ function renderGov() {
 }
 
 
-const show =
-  (html, lock, cls) => {
-    $('#modal').innerHTML =
-      html;
-
-    openModal(
-      lock,
-      cls
-    );
-  };
-
-
 /* ================================================================
    BALANÇO ANUAL
-   ================================================================ */
+================================================================ */
 
 function balance() {
+
+  if (!S)
+    return;
+
   const y =
     S.turn / 12;
 
   const L =
     S.yl.filter(
-      x => x.y === y
+      x =>
+        x.y === y
     );
 
   const top =
@@ -1199,7 +1569,6 @@ function balance() {
           )})`
       );
 
-
   const ul =
     a =>
       a.length
@@ -1231,34 +1600,26 @@ function balance() {
         <b>${fmt(
           E.monthlyRevenue || 0
         )}</b>
-        <span>
-          Receita do último mês
-        </span>
+        <span>Receita do último mês</span>
       </div>
 
       <div class="stat">
         <b>${fmt(
           E.monthlyExpenses || 0
         )}</b>
-        <span>
-          Despesa do último mês
-        </span>
+        <span>Despesa do último mês</span>
       </div>
 
       <div class="stat">
         <b>${fmt(
           E.monthlyResult || 0
         )}</b>
-        <span>
-          Resultado financeiro
-        </span>
+        <span>Resultado financeiro</span>
       </div>
 
       <div class="stat">
         <b>${E.deficitMonths || 0}</b>
-        <span>
-          Meses consecutivos de déficit
-        </span>
+        <span>Meses consecutivos de déficit</span>
       </div>
 
     </div>
@@ -1271,16 +1632,21 @@ function balance() {
     </p>`;
 
 
-  $('#modal').innerHTML =
+  const modal =
+    $('#modal');
+
+  if (!modal)
+    return;
+
+
+  modal.innerHTML =
     `<h3>Balanço do ano ${y}</h3>
 
     <div class="stats">
 
       <div class="stat">
         <b>${fmt(S.b)}</b>
-        <span>
-          Orçamento restante
-        </span>
+        <span>Orçamento restante</span>
       </div>
 
       <div class="stat">
@@ -1324,9 +1690,7 @@ function balance() {
 
     ${ul(ups)}
 
-    <h4>
-      Problemas que ficaram pendentes
-    </h4>
+    <h4>Problemas que ficaram pendentes</h4>
 
     ${ul(
       pend.concat(
@@ -1339,52 +1703,70 @@ function balance() {
       )
     )}
 
-    <p class="say">
-      ${adv().ic}
-      ${adv().n}:
-      “${advisorComment('bal')}”
-    </p>
+    ${
+      typeof adv === 'function' &&
+      typeof advisorComment === 'function'
+        ? `
+          <p class="say">
+            ${adv().ic}
+            ${adv().n}:
+            “${advisorComment('bal')}”
+          </p>
+        `
+        : ''
+    }
 
-    <button
-      class="btn main"
-      id="nextY"
-    >
+    <button class="btn main" id="nextY">
+
       ${
         y >= 4
           ? 'VER FIM DO MANDATO'
-          : 'INICIAR ANO ' + (y + 1)
+          : 'INICIAR ANO ' +
+            (y + 1)
       }
+
     </button>`;
 
   openModal(true);
 
-  $('#nextY').onclick =
-    () => {
-      S.bal = 0;
+  const nextY =
+    $('#nextY');
 
-      S.snap =
-        {
-          ...S.ind
-        };
+  if (nextY) {
 
-      save();
+    nextY.onclick =
+      () => {
 
-      closeModal();
+        S.bal = 0;
 
-      if (y >= 4) {
-        endGame();
-      } else {
-        render();
-      }
-    };
+        S.snap =
+          {
+            ...S.ind
+          };
+
+        save();
+
+        closeModal();
+
+        if (y >= 4) {
+
+          endGame();
+
+        } else {
+
+          render();
+        }
+      };
+  }
 }
 
 
 /* ================================================================
    DADOS FINANCEIROS DO RELATÓRIO
-   ================================================================ */
+================================================================ */
 
 function financialReportData() {
+
   ensureGameEconomy();
 
   const E =
@@ -1397,7 +1779,9 @@ function financialReportData() {
   if (
     Array.isArray(E.history)
   ) {
+
     E.history.forEach(h => {
+
       totalRevenue +=
         Number(
           h.totalRevenue
@@ -1415,6 +1799,7 @@ function financialReportData() {
     !totalRevenue &&
     S.rec
   ) {
+
     totalRevenue =
       Number(S.rec) || 0;
   }
@@ -1424,6 +1809,7 @@ function financialReportData() {
     !totalExpenses &&
     S.exp
   ) {
+
     totalExpenses =
       Number(S.exp) || 0;
   }
@@ -1474,6 +1860,7 @@ function financialReportData() {
 
 
   return {
+
     totalRevenue,
 
     totalExpenses,
@@ -1514,9 +1901,10 @@ function financialReportData() {
 
 /* ================================================================
    NOTA GERAL DO MANDATO
-   ================================================================ */
+================================================================ */
 
 const MANDATE_WEIGHTS = {
+
   s: .20,
   e: .20,
   i: .15,
@@ -1525,19 +1913,23 @@ const MANDATE_WEIGHTS = {
   c: .10,
   r: .07,
   t: .10
+
 };
 
 
 function mandateScore() {
+
   let score = 0;
 
   for (
     const k in MANDATE_WEIGHTS
   ) {
+
     score +=
       (
-        Number(S.ind[k]) ||
-        0
+        Number(
+          S.ind[k]
+        ) || 0
       ) *
       MANDATE_WEIGHTS[k];
   }
@@ -1552,38 +1944,38 @@ function mandateScore() {
 }
 
 
-function mandateScoreLabel(score) {
-  if (score >= 9) {
+function mandateScoreLabel(
+  score
+) {
+
+  if (score >= 9)
     return 'Excelente';
-  }
 
-  if (score >= 8) {
+  if (score >= 8)
     return 'Muito bom';
-  }
 
-  if (score >= 7) {
+  if (score >= 7)
     return 'Bom';
-  }
 
-  if (score >= 6) {
+  if (score >= 6)
     return 'Regular';
-  }
 
-  if (score >= 5) {
+  if (score >= 5)
     return 'Atenção';
-  }
 
   return 'Crítico';
 }
 
 
 function mandateScoreDetails() {
+
   return Object
     .entries(
       MANDATE_WEIGHTS
     )
     .map(
       ([k, weight]) => ({
+
         key: k,
 
         label:
@@ -1591,592 +1983,37 @@ function mandateScoreDetails() {
 
         value:
           Math.round(
-            S.ind[k]
+            Number(
+              S.ind[k]
+            ) || 0
           ),
 
         weight,
 
         contribution:
           (
-            S.ind[k] || 0
+            Number(
+              S.ind[k]
+            ) || 0
           ) *
           weight
+
       })
     );
 }
 
 
 /* ================================================================
-   ARTE COMPARTILHÁVEL
-   ================================================================ */
-
-async function shareMandateResult() {
-
-  const score =
-    mandateScore();
-
-  const label =
-    mandateScoreLabel(
-      score
-    );
-
-
-  const canvas =
-    document.createElement(
-      'canvas'
-    );
-
-  canvas.width = 1080;
-  canvas.height = 1350;
-
-
-  const ctx =
-    canvas.getContext('2d');
-
-
-  /* ---------- FUNDO ---------- */
-
-  const bg =
-    ctx.createLinearGradient(
-      0,
-      0,
-      1080,
-      1350
-    );
-
-  bg.addColorStop(
-    0,
-    '#173f30'
-  );
-
-  bg.addColorStop(
-    .48,
-    '#1f5d43'
-  );
-
-  bg.addColorStop(
-    1,
-    '#0f3024'
-  );
-
-  ctx.fillStyle =
-    bg;
-
-  ctx.fillRect(
-    0,
-    0,
-    1080,
-    1350
-  );
-
-
-  /* ---------- DECORAÇÃO ---------- */
-
-  ctx.globalAlpha = .08;
-
-  ctx.fillStyle =
-    '#f1e6cb';
-
-  ctx.beginPath();
-
-  ctx.arc(
-    920,
-    130,
-    190,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fill();
-
-
-  ctx.beginPath();
-
-  ctx.arc(
-    100,
-    1180,
-    250,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fill();
-
-  ctx.globalAlpha = 1;
-
-
-  /* ---------- TÍTULO ---------- */
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillStyle =
-    '#f1e6cb';
-
-  ctx.font =
-    '800 32px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    'SERTÂNIA: DESAFIO DE GESTÃO',
-    540,
-    90
-  );
-
-
-  ctx.font =
-    '700 20px "Segoe UI", sans-serif';
-
-  ctx.globalAlpha = .7;
-
-  ctx.fillText(
-    'RESULTADO FINAL DO MANDATO',
-    540,
-    125
-  );
-
-  ctx.globalAlpha = 1;
-
-
-  /* ---------- CARTÃO ---------- */
-
-  const cardX = 70;
-  const cardY = 165;
-  const cardW = 940;
-  const cardH = 1040;
-
-  ctx.fillStyle =
-    '#fbf6e8';
-
-  ctx.beginPath();
-
-  ctx.roundRect(
-    cardX,
-    cardY,
-    cardW,
-    cardH,
-    32
-  );
-
-  ctx.fill();
-
-
-  /* ---------- NOTA ---------- */
-
-  let scoreColor =
-    '#b23a2e';
-
-  if (score >= 8) {
-    scoreColor =
-      '#1f9d62';
-
-  } else if (score >= 6) {
-    scoreColor =
-      '#c8902f';
-  }
-
-
-  ctx.strokeStyle =
-    scoreColor;
-
-  ctx.lineWidth =
-    18;
-
-  ctx.beginPath();
-
-  ctx.arc(
-    540,
-    370,
-    145,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.stroke();
-
-
-  ctx.fillStyle =
-    '#2a2118';
-
-  ctx.font =
-    '900 92px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    score.toFixed(1),
-    540,
-    395
-  );
-
-
-  ctx.font =
-    '700 28px "Segoe UI", sans-serif';
-
-  ctx.fillStyle =
-    '#6d5d47';
-
-  ctx.fillText(
-    '/10',
-    540,
-    435
-  );
-
-
-  /* ---------- CLASSIFICAÇÃO ---------- */
-
-  ctx.fillStyle =
-    scoreColor;
-
-  ctx.font =
-    '900 34px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    label.toUpperCase(),
-    540,
-    505
-  );
-
-
-  ctx.fillStyle =
-    '#6d5d47';
-
-  ctx.font =
-    '500 19px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    'Desempenho geral da gestão',
-    540,
-    538
-  );
-
-
-  /* ---------- ÁREAS ---------- */
-
-  const details =
-    mandateScoreDetails();
-
-  let y = 600;
-
-
-  ctx.textAlign =
-    'left';
-
-
-  details.forEach(d => {
-
-    const value =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          Number(d.value) || 0
-        )
-      );
-
-
-    let barColor =
-      '#b23a2e';
-
-    if (value >= 70) {
-      barColor =
-        '#1f9d62';
-
-    } else if (value >= 50) {
-      barColor =
-        '#c8902f';
-    }
-
-
-    ctx.fillStyle =
-      '#2a2118';
-
-    ctx.font =
-      '700 19px "Segoe UI", sans-serif';
-
-    ctx.fillText(
-      d.label,
-      125,
-      y
-    );
-
-
-    ctx.fillStyle =
-      '#8a7a62';
-
-    ctx.font =
-      '600 15px "Segoe UI", sans-serif';
-
-    ctx.textAlign =
-      'right';
-
-    ctx.fillText(
-      `Peso ${Math.round(
-        d.weight * 100
-      )}%`,
-      955,
-      y
-    );
-
-    ctx.textAlign =
-      'left';
-
-
-    ctx.fillStyle =
-      '#e4d3aa';
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-      125,
-      y + 13,
-      830,
-      13,
-      7
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle =
-      barColor;
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-      125,
-      y + 13,
-      830 *
-        (value / 100),
-      13,
-      7
-    );
-
-    ctx.fill();
-
-
-    y += 67;
-  });
-
-
-  /* ---------- RESUMO ---------- */
-
-  const summaryY =
-    1090;
-
-  ctx.strokeStyle =
-    '#e4d3aa';
-
-  ctx.lineWidth =
-    2;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    125,
-    summaryY - 25
-  );
-
-  ctx.lineTo(
-    955,
-    summaryY - 25
-  );
-
-  ctx.stroke();
-
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillStyle =
-    '#6d5d47';
-
-  ctx.font =
-    '700 16px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    'ORÇAMENTO FINAL',
-    300,
-    summaryY + 10
-  );
-
-  ctx.fillText(
-    'APROVAÇÃO POPULAR',
-    780,
-    summaryY + 10
-  );
-
-
-  ctx.fillStyle =
-    '#1f5d43';
-
-  ctx.font =
-    '900 27px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    fmt(S.b),
-    300,
-    summaryY + 45
-  );
-
-  ctx.fillText(
-    `${Math.round(
-      S.ind.p
-    )}%`,
-    780,
-    summaryY + 45
-  );
-
-
-  /* ---------- RODAPÉ ---------- */
-
-  ctx.fillStyle =
-    '#8a7a62';
-
-  ctx.font =
-    '600 15px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    'Uma gestão. Quatro anos. Muitas decisões.',
-    540,
-    1270
-  );
-
-
-  ctx.font =
-    '700 13px "Segoe UI", sans-serif';
-
-  ctx.fillText(
-    'DESENVOLVIDO POR SERG!N',
-    540,
-    1298
-  );
-
-
-  ctx.textAlign =
-    'left';
-
-
-  /* ---------- PNG ---------- */
-
-  const blob =
-    await new Promise(
-      resolve =>
-        canvas.toBlob(
-          resolve,
-          'image/png',
-          1
-        )
-    );
-
-
-  if (!blob) {
-
-    toast(
-      'r',
-      'ERRO',
-      'Não foi possível gerar a imagem.'
-    );
-
-    return;
-  }
-
-
-  const file =
-    new File(
-      [blob],
-      'resultado-mandato-sertania.png',
-      {
-        type: 'image/png'
-      }
-    );
-
-
-  /* ---------- COMPARTILHAMENTO ---------- */
-
-  if (
-    navigator.share &&
-    navigator.canShare &&
-    navigator.canShare({
-      files: [file]
-    })
-  ) {
-
-    try {
-
-      await navigator.share({
-        title:
-          'Sertânia: Desafio de Gestão',
-
-        text:
-          `Meu resultado no mandato: ${score.toFixed(1)}/10 — ${label}.`,
-
-        files: [file]
-      });
-
-      return;
-
-    } catch (err) {
-
-      if (
-        err &&
-        err.name === 'AbortError'
-      ) {
-        return;
-      }
-    }
-  }
-
-
-  /* ---------- DOWNLOAD ---------- */
-
-  const url =
-    URL.createObjectURL(
-      blob
-    );
-
-  const a =
-    document.createElement(
-      'a'
-    );
-
-  a.href =
-    url;
-
-  a.download =
-    'resultado-mandato-sertania.png';
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  a.remove();
-
-
-  setTimeout(
-    () =>
-      URL.revokeObjectURL(
-        url
-      ),
-    1000
-  );
-
-
-  toast(
-    'g',
-    'ARTE GERADA',
-    'A imagem do resultado foi salva.'
-  );
-}
-
-
-/* ================================================================
    RELATÓRIO FINAL
-   ================================================================ */
+================================================================ */
 
 function report() {
 
   const cats =
-    Object.entries(
-      S.catSpend
-    )
+    Object
+      .entries(
+        S.catSpend || {}
+      )
       .filter(
         c => c[1] > 0
       )
@@ -2211,6 +2048,7 @@ function report() {
 
 
   p.push(
+
     cats.length >= 2
 
       ? `Durante o mandato, a administração concentrou seus investimentos em ${cats[0][0].toLowerCase()} e ${cats[1][0].toLowerCase()}, em um total de ${fmt(S.spent)} aplicados em ${S.dec} decisões.`
@@ -2219,9 +2057,15 @@ function report() {
   );
 
 
-  p.push(
-    `O melhor desempenho ficou com ${LBL[best].toLowerCase()} (${Math.round(S.ind[best])}/100), enquanto ${LBL[worst].toLowerCase()} terminou em ${Math.round(S.ind[worst])}/100.`
-  );
+  if (
+    best &&
+    worst
+  ) {
+
+    p.push(
+      `O melhor desempenho ficou com ${LBL[best].toLowerCase()} (${Math.round(S.ind[best])}/100), enquanto ${LBL[worst].toLowerCase()} terminou em ${Math.round(S.ind[worst])}/100.`
+    );
+  }
 
 
   if (S.b > 8000) {
@@ -2246,14 +2090,14 @@ function report() {
 
   p.push(
     S.crises
-
       ? `${S.crises} crise(s) exigiram respostas emergenciais.`
-
       : 'Nenhuma crise grave precisou ser enfrentada.'
   );
 
 
-  if (S.zero >= 12) {
+  if (
+    S.zero >= 12
+  ) {
 
     p.push(
       `Em ${S.zero} ocasiões, a opção foi não gastar ou adiar, o que aliviou o caixa mas deixou problemas se acumularem.`
@@ -2262,6 +2106,7 @@ function report() {
 
 
   p.push(
+
     S.ind.t >= 70
 
       ? 'A transparência foi um ponto forte da gestão.'
@@ -2275,6 +2120,7 @@ function report() {
 
 
   p.push(
+
     S.ind.p >= 70
 
       ? 'A população termina o mandato com avaliação favorável.'
@@ -2301,7 +2147,9 @@ function report() {
   );
 
 
-  if (F.reserve > 0) {
+  if (
+    F.reserve > 0
+  ) {
 
     p.push(
       `A gestão encerrou o mandato com ${fmt(F.reserve)} mantidos em reserva.`
@@ -2309,7 +2157,9 @@ function report() {
   }
 
 
-  if (F.agreements > 0) {
+  if (
+    F.agreements > 0
+  ) {
 
     p.push(
       `Foram recebidos ${fmt(F.agreements)} em recursos de convênios.`
@@ -2317,7 +2167,9 @@ function report() {
   }
 
 
-  if (F.amendments > 0) {
+  if (
+    F.amendments > 0
+  ) {
 
     p.push(
       `Também foram utilizados ${fmt(F.amendments)} em recursos de emendas.`
@@ -2336,17 +2188,22 @@ function report() {
 
 /* ================================================================
    FIM DO MANDATO
-   ================================================================ */
+================================================================ */
 
 function endGame() {
+
+  if (!S)
+    return;
 
   ensureGameEconomy();
 
   S.done = 1;
 
+  /*
+   * Mantemos o resultado salvo.
+   * hasSave() já ignora partidas com done = 1.
+   */
   save();
-
-  deleteSave();
 
   screen('end');
 
@@ -2355,8 +2212,6 @@ function endGame() {
   hot(null);
 
 
-  /* ---------- FUNÇÃO DE STAT ---------- */
-
   const st =
     (v, l) =>
       `<div class="stat">
@@ -2364,8 +2219,6 @@ function endGame() {
         <span>${l}</span>
       </div>`;
 
-
-  /* ---------- INDICADORES ---------- */
 
   const big =
     IND
@@ -2387,8 +2240,6 @@ function endGame() {
       .join('');
 
 
-  /* ---------- LINHA DO TEMPO ---------- */
-
   const tl =
     S.tl
       .slice(-14)
@@ -2409,8 +2260,6 @@ function endGame() {
 
       '<p>Nenhum acontecimento de grande porte.</p>';
 
-
-  /* ---------- FINANÇAS ---------- */
 
   const F =
     financialReportData();
@@ -2462,18 +2311,18 @@ function endGame() {
     </div>`;
 
 
-  /* ================================================================
-     NOTA GERAL DO MANDATO
-     ================================================================ */
+  /* NOTA */
 
   const score =
     mandateScore();
-
 
   const scoreLabel =
     mandateScoreLabel(
       score
     );
+
+  const scoreDetails =
+    mandateScoreDetails();
 
 
   const scoreColor =
@@ -2506,9 +2355,7 @@ function endGame() {
 
           ${score.toFixed(1)}
 
-          <span>
-            /10
-          </span>
+          <span>/10</span>
 
         </div>
 
@@ -2527,7 +2374,7 @@ function endGame() {
 
       <div class="mandate-areas">
 
-        ${mandateScoreDetails()
+        ${scoreDetails
           .map(d => {
 
             const percent =
@@ -2535,7 +2382,9 @@ function endGame() {
                 0,
                 Math.min(
                   100,
-                  d.value
+                  Number(
+                    d.value
+                  ) || 0
                 )
               );
 
@@ -2549,6 +2398,7 @@ function endGame() {
 
 
             return `
+
               <div class="mandate-area">
 
                 <div class="mandate-area-top">
@@ -2558,7 +2408,8 @@ function endGame() {
                   </span>
 
                   <small>
-                    Peso ${Math.round(
+                    Peso
+                    ${Math.round(
                       d.weight * 100
                     )}%
                   </small>
@@ -2576,6 +2427,7 @@ function endGame() {
                 </div>
 
               </div>
+
             `;
           })
           .join('')}
@@ -2585,12 +2437,18 @@ function endGame() {
     </div>`;
 
 
-  /* ================================================================
-     TELA FINAL
-     ================================================================ */
+  const end =
+    $('#end');
 
-  $('#end').innerHTML =
-    `<h1>FIM DO MANDATO</h1>
+  if (!end)
+    return;
+
+
+  end.innerHTML =
+    `<h1>
+      FIM DO MANDATO
+    </h1>
+
 
     <div class="stats">
 
@@ -2660,7 +2518,11 @@ function endGame() {
     </div>
 
 
-    ${legacy()}
+    ${
+      typeof legacy === 'function'
+        ? legacy()
+        : ''
+    }
 
 
     <p class="quote">
@@ -2672,14 +2534,6 @@ function endGame() {
       class="btns"
       style="justify-content:center"
     >
-
-      <button
-        class="btn share-result"
-        id="shareResult"
-      >
-        📸 COMPARTILHAR RESULTADO
-      </button>
-
 
       <button
         class="btn main"
@@ -2707,35 +2561,46 @@ function endGame() {
     </div>`;
 
 
-  /* ---------- BOTÕES ---------- */
-
   const d =
     S.diff;
 
 
-  $('#shareResult').onclick =
-    () =>
-      shareMandateResult();
+  const again =
+    $('#again');
+
+  if (again) {
+
+    again.onclick =
+      () => newGame(d);
+  }
 
 
-  $('#again').onclick =
-    () =>
-      newGame(d);
+  const newE =
+    $('#newE');
+
+  if (newE) {
+
+    newE.onclick =
+      () => pickDiff(
+        newGame
+      );
+  }
 
 
-  $('#newE').onclick =
-    () =>
-      pickDiff(newGame);
+  const menuE =
+    $('#menuE');
 
+  if (menuE) {
 
-  $('#menuE').onclick =
-    home;
+    menuE.onclick =
+      home;
+  }
 }
 
 
 /* ================================================================
    CIDADE VIVA
-   ================================================================ */
+================================================================ */
 
 const ZN = {
 
@@ -2768,6 +2633,7 @@ const ZN = {
     ['i'],
     'Estradas'
   ]
+
 };
 
 
@@ -2817,6 +2683,7 @@ const CI = {
 
   'Política pública':
     '📑'
+
 };
 
 
@@ -2836,6 +2703,7 @@ const AREA = {
 
   estradas:
     'Estradas'
+
 };
 
 
@@ -2861,16 +2729,27 @@ const ROLE = {
 
   'Finanças':
     'Contadora da prefeitura'
+
 };
 
 
 /* ================================================================
    ZONAS
-   ================================================================ */
+================================================================ */
 
 function zones() {
 
-  for (const k in ZN) {
+  if (
+    !S ||
+    !S.ind
+  ) {
+    return;
+  }
+
+
+  for (
+    const k in ZN
+  ) {
 
     const z =
       $('#a-' + k);
@@ -2880,14 +2759,34 @@ function zones() {
     }
 
 
+    const areas =
+      ZN[k][1];
+
+
+    if (
+      !Array.isArray(areas) ||
+      !areas.length
+    ) {
+      continue;
+    }
+
+
+    const values =
+      areas.map(
+        x =>
+          Number(
+            S.ind[x]
+          ) || 0
+      );
+
+
     const v =
-      ZN[k][1].reduce(
+      values.reduce(
         (a, x) =>
-          a +
-          S.ind[x],
+          a + x,
         0
       ) /
-      ZN[k][1].length;
+      values.length;
 
 
     const st =
@@ -2899,12 +2798,22 @@ function zones() {
 
 
     ['ok','warn','bad']
-      .forEach(c =>
+      .forEach(c => {
+
         z.classList.toggle(
           c,
           c === st
-        )
-      );
+        );
+
+      });
+
+
+    const signal =
+      st === 'bad'
+        ? '⚠️'
+        : st === 'ok'
+          ? '✨'
+          : '';
 
 
     z.innerHTML =
@@ -2914,41 +2823,59 @@ function zones() {
 
       <small>
         ${ZN[k][2]}
-
-        ${
-          st === 'bad'
-            ? '⚠️'
-            : st === 'ok'
-              ? '✨'
-              : ''
-        }
-
+        ${signal}
       </small>`;
   }
 
 
-  const w =
+  const rain =
+    Number(
+      S.rain
+    ) || 0;
+
+  const turn =
+    Number(
+      S.turn
+    ) || 0;
+
+
+  const weather =
     S.ind.a < 30
 
       ? '🏜️'
 
-      : S.rain >= S.turn
+      : rain >= turn
+
         ? '🌧️'
 
         : '☀️';
 
 
-  $('#wx').textContent =
-    w +
-    (
-      S.ind.p >= 60
+  const mood =
+    S.ind.p >= 60
 
-        ? '😊'
+      ? '😊'
 
-        : S.ind.p >= 40
+      : S.ind.p >= 40
 
-          ? '😐'
+        ? '😐'
 
-          : '😠'
-    );
+        : '😠';
+
+
+  const wx =
+    $('#wx');
+
+
+  if (wx) {
+
+    wx.textContent =
+      weather +
+      mood;
+  }
 }
+
+
+/* ================================================================
+   FINAL
+================================================================ */
