@@ -167,3 +167,80 @@ h2{margin:6px 0 16px;font-size:1.2rem;letter-spacing:.35em;color:var(--earth)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @keyframes walk{to{left:calc(100% - 22px)}}
 
+/* =========================================================
+   NOTA FINAL DO MANDATO
+   ========================================================= */
+
+.mandate-final-score {
+  text-align: center;
+  padding: 28px 20px;
+  margin: 20px 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,.08),
+    rgba(255,255,255,.03)
+  );
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.mandate-score-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  opacity: .75;
+}
+
+.mandate-score-number {
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 900;
+  margin: 12px 0 4px;
+}
+
+.mandate-score-number span {
+  font-size: 24px;
+  opacity: .55;
+}
+
+.mandate-score-label {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.mandate-final-score p {
+  max-width: 600px;
+  margin: 12px auto 0;
+  opacity: .7;
+}
+
+.mandate-score-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.mandate-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+}
+
+.mandate-score-row div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mandate-score-row small {
+  opacity: .55;
+  font-size: 11px;
+}
+
+.mandate-score-row > b {
+  font-size: 17px;
+}
