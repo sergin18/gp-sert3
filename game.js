@@ -2004,8 +2004,7 @@ function endGame() {
   <button class="btn" id="menuE">
     Menu
   </button>
-</div>
-
+</div>`;
   const d =
     S.diff;
 
