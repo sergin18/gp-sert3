@@ -1,111 +1,50 @@
 'use strict';
-
 /* GAME — estado central, calendário, indicadores, interface e fim do mandato
-   ECONOMIA 2.0 — integração com caixa, déficit, Câmara, projetos e relatório
+   Integração com ECONOMY 2.0 sem alterar o sistema original de calendário
 */
 
-
 /* ---------- ESTADO E CONSTANTES ---------- */
-
-const IND = [
-  ['s','Saúde','🏥'],
-  ['e','Educação','📚'],
-  ['i','Infraestrutura','🚧'],
-  ['a','Abastecimento','💧'],
-  ['m','Meio ambiente','🌱'],
-  ['c','Economia','💼'],
-  ['r','Zona rural','🌾'],
-  ['t','Transparência','🏛️'],
-  ['p','Aprovação popular','😊']
-];
-
+const IND = [['s','Saúde','🏥'],['e','Educação','📚'],['i','Infraestrutura','🚧'],['a','Abastecimento','💧'],['m','Meio ambiente','🌱'],['c','Economia','💼'],['r','Zona rural','🌾'],['t','Transparência','🏛️'],['p','Aprovação popular','😊']];
 const K = IND.map(x => x[0]);
-
-const LBL = Object.fromEntries(
-  IND.map(x => [x[0], x[1]])
-);
-
-const MES = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro'
-];
+const LBL = Object.fromEntries(IND.map(x => [x[0], x[1]]));
+const MES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 const DIFF = {
-  normal:{
-    n:'Normal',
-    b:20000,
-    neg:1,
-    rev:1,
-    imp:.3,
-    d:'Eventos equilibrados.'
-  },
-
-  desafio:{
-    n:'Desafio',
-    b:15000,
-    neg:1.4,
-    rev:.9,
-    imp:.4,
-    d:'Mais eventos negativos e menos orçamento.'
-  },
-
-  caos:{
-    n:'Caos',
-    b:9000,
-    neg:1.9,
-    rev:.8,
-    imp:.6,
-    d:'Eventos frequentes, crises e orçamento extremamente limitado.'
-  }
+  normal:{n:'Normal',b:20000,neg:1,rev:1,imp:.3,d:'Eventos equilibrados.'},
+  desafio:{n:'Desafio',b:15000,neg:1.4,rev:.9,imp:.4,d:'Mais eventos negativos e menos orçamento.'},
+  caos:{n:'Caos',b:9000,neg:1.9,rev:.8,imp:.6,d:'Eventos frequentes, crises e orçamento extremamente limitado.'}
 };
 
 let S = null;
 
 const $ = s => document.querySelector(s);
-
-const fmt = v =>
-  'R$ ' + Math.round((Number(v) || 0) * 1000).toLocaleString('pt-BR');
-
-const clamp = v =>
-  Math.max(0, Math.min(100, Number(v) || 0));
-
-const rnd = (a, b) =>
-  a + Math.random() * (b - a);
-
+const fmt = v => 'R$ ' + Math.round((Number(v) || 0) * 1000).toLocaleString('pt-BR');
+const clamp = v => Math.max(0, Math.min(100, Number(v) || 0));
+const rnd = (a, b) => a + Math.random() * (b - a);
 const fx = s => {
   const o = {};
-
   (s || '').split(' ').forEach(t => {
-    if (t) {
-      o[t[0]] =
-        (o[t[0]] || 0) +
-        parseFloat(t.slice(1));
-    }
+    if (t) o[t[0]] = (o[t[0]] || 0) + parseFloat(t.slice(1));
   });
-
   return o;
 };
 
 
 /* ================================================================
-   ECONOMIA 2.0 — INTEGRAÇÃO
+   ECONOMIA 2.0 — FUNÇÕES DE INTEGRAÇÃO
    ================================================================ */
 
 /*
-   Garante que saves antigos ou estados criados antes da Economia 2.0
-   tenham uma estrutura financeira mínima.
-
-   O economy.js continua sendo o responsável principal pela economia.
+   Não recriamos a economia aqui.
+   economy.js continua sendo o responsável por:
+   - receitas
+   - despesas
+   - caixa
+   - déficit
+   - convênios
+   - emendas
+   - reserva
+   - histórico
 */
 
 function ensureGameEconomy() {
@@ -113,127 +52,29 @@ function ensureGameEconomy() {
 
   if (typeof ensureEconomy === 'function') {
     ensureEconomy();
-    return;
-  }
-
-  /*
-     Fallback defensivo caso economy.js ainda não tenha sido carregado.
-  */
-
-  if (!S.economy) {
-    S.economy = {};
-  }
-
-  const E = S.economy;
-
-  [
-    'taxes',
-    'transfers',
-    'agreements',
-    'amendments',
-    'extraordinary',
-    'payroll',
-    'maintenance',
-    'services',
-    'administrative',
-    'projects',
-    'emergency',
-    'monthlyRevenue',
-    'monthlyExpenses',
-    'monthlyResult',
-    'reserve',
-    'deficitMonths'
-  ].forEach(k => {
-    if (typeof E[k] !== 'number') {
-      E[k] = 0;
-    }
-  });
-
-  [
-    'history',
-    'log',
-    'notices',
-    'agreementsAvailable',
-    'agreementsPending',
-    'agreementsApproved',
-    'agreementsRejected',
-    'amendmentsAvailable',
-    'programsAvailable'
-  ].forEach(k => {
-    if (!Array.isArray(E[k])) {
-      E[k] = [];
-    }
-  });
-
-  if (!E._month) {
-    E._month = {};
-  }
-
-  [
-    'taxes',
-    'transfers',
-    'agreements',
-    'amendments',
-    'extraordinary',
-    'payroll',
-    'maintenance',
-    'services',
-    'administrative',
-    'projects',
-    'emergency'
-  ].forEach(k => {
-    if (typeof E._month[k] !== 'number') {
-      E._month[k] = 0;
-    }
-  });
-
-  if (typeof E.taxModifier !== 'number') {
-    E.taxModifier = 1;
-  }
-
-  if (!E.expenseAdjust) {
-    E.expenseAdjust = {};
-  }
-
-  if (E._lastBalance === undefined) {
-    E._lastBalance = null;
   }
 }
 
 
-/* ---------- STATUS FINANCEIRO ---------- */
-
+/* Status financeiro para interface/relatório/consequências. */
 function financialStatus() {
   ensureGameEconomy();
 
-  if (!S || !S.economy) {
-    return 'saudável';
-  }
+  if (!S || !S.economy) return 'saudável';
 
-  const E = S.economy;
   const cash = Number(S.b) || 0;
-  const deficit = Number(E.deficitMonths) || 0;
-  const result = Number(E.monthlyResult) || 0;
+  const deficit = Number(S.economy.deficitMonths) || 0;
+  const result = Number(S.economy.monthlyResult) || 0;
 
-  if (
-    cash <= 2500 ||
-    deficit >= 4
-  ) {
+  if (cash <= 2500 || deficit >= 4) {
     return 'crítico';
   }
 
-  if (
-    cash <= 5000 ||
-    deficit >= 2 ||
-    result < 0
-  ) {
+  if (cash <= 5000 || deficit >= 2 || result < 0) {
     return 'deficitário';
   }
 
-  if (
-    cash <= 8000 ||
-    deficit >= 1
-  ) {
+  if (cash <= 8000 || deficit >= 1) {
     return 'atenção';
   }
 
@@ -241,163 +82,100 @@ function financialStatus() {
 }
 
 
-/* ---------- PRESSÃO FINANCEIRA ---------- */
-
-function financialPressure() {
-  ensureGameEconomy();
-
-  if (!S || !S.economy) {
-    return 0;
-  }
-
-  const cash = Number(S.b) || 0;
-  const deficit =
-    Number(S.economy.deficitMonths) || 0;
-
-  let p = 0;
-
-  if (cash <= 8000) p += .10;
-  if (cash <= 5000) p += .10;
-  if (cash <= 2500) p += .15;
-
-  if (deficit >= 2) p += .08;
-  if (deficit >= 3) p += .10;
-  if (deficit >= 4) p += .12;
-
-  return Math.min(.55, p);
-}
-
-
-/* ---------- CONSEQUÊNCIAS FINANCEIRAS ---------- */
-
+/*
+   Consequências econômicas graduais.
+   Não existe game over automático.
+*/
 function applyFinancialConsequences() {
   ensureGameEconomy();
 
   if (!S || !S.economy) return;
 
-  const E = S.economy;
   const cash = Number(S.b) || 0;
-  const deficit = Number(E.deficitMonths) || 0;
+  const deficit = Number(S.economy.deficitMonths) || 0;
 
   /*
-     A economia NÃO domina a popularidade.
-     Os efeitos são pequenos.
+     Caixa baixo começa a afetar a aprovação.
+     O efeito é propositalmente pequeno.
   */
 
   if (cash <= 8000 && cash > 5000) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.03, .10)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.02, .06));
   }
 
   if (cash <= 5000 && cash > 2500) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.08, .18)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.04, .10));
   }
 
   if (cash <= 2500) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.15, .30)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.08, .16));
   }
 
   /*
-     Déficit prolongado.
+     Déficit consecutivo gera pressão administrativa.
   */
 
   if (deficit >= 2) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.05, .12)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.02, .07));
   }
 
   if (deficit >= 3) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.08, .18)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.03, .09));
   }
 
   if (deficit >= 4) {
-    S.ind.p = clamp(
-      S.ind.p - rnd(.10, .22)
-    );
+    S.ind.p = clamp(S.ind.p - rnd(.04, .12));
   }
 }
 
 
-/* ---------- PRESSÃO SOBRE A CÂMARA ---------- */
-
+/*
+   Pressão financeira sobre a Câmara.
+   Não coloca automaticamente todos os vereadores contra o governo.
+*/
 function applyFinancialCouncilPressure() {
   if (!Array.isArray(S.council)) return;
 
   ensureGameEconomy();
 
-  const pressure =
-    financialPressure();
+  const cash = Number(S.b) || 0;
+  const deficit = Number(S.economy?.deficitMonths) || 0;
+
+  let pressure = 0;
+
+  if (cash <= 8000) pressure += .08;
+  if (cash <= 5000) pressure += .08;
+  if (cash <= 2500) pressure += .10;
+
+  if (deficit >= 2) pressure += .08;
+  if (deficit >= 3) pressure += .08;
+  if (deficit >= 4) pressure += .10;
+
+  pressure = Math.min(.45, pressure);
 
   if (pressure <= 0) return;
 
   S.council.forEach(v => {
     if (!v) return;
 
-    if (typeof v.rel !== 'number') {
-      v.rel = 50;
-    }
-
-    if (typeof v.sup !== 'number') {
-      v.sup = 0;
-    }
-
-    /*
-       Não coloca todos os vereadores contra o prefeito.
-       Apenas alguns sofrem uma deterioração pequena.
-    */
+    if (typeof v.rel !== 'number') v.rel = 50;
+    if (typeof v.sup !== 'number') v.sup = 0;
 
     if (Math.random() < pressure) {
-      v.rel = clamp(
-        v.rel - rnd(.15, .55)
-      );
+      v.rel = clamp(v.rel - rnd(.15, .45));
     }
 
-    if (Math.random() < pressure * .45) {
-      v.sup = Math.max(
-        0,
-        v.sup - rnd(.10, .30)
-      );
+    if (Math.random() < pressure * .35) {
+      v.sup = Math.max(0, v.sup - rnd(.05, .20));
     }
   });
 }
 
 
-/* ---------- RECUPERAÇÃO FINANCEIRA ---------- */
-
-function applyFinancialRecovery() {
-  ensureGameEconomy();
-
-  if (!S || !S.economy) return;
-
-  const E = S.economy;
-
-  /*
-     Um mês positivo não "cura" tudo instantaneamente.
-     Apenas representa uma pequena recuperação de confiança.
-  */
-
-  if (
-    Number(E.monthlyResult) > 0 &&
-    Number(E.deficitMonths) === 0 &&
-    Number(S.b) > 8000
-  ) {
-    S.ind.p = clamp(
-      S.ind.p + rnd(.02, .07)
-    );
-  }
-}
-
-
-/* ---------- NOTÍCIAS FINANCEIRAS ---------- */
-
+/*
+   Notícias financeiras são ocasionais.
+   Não transforma todo mês em notícia de economia.
+*/
 function financialNews() {
   ensureGameEconomy();
 
@@ -405,55 +183,36 @@ function financialNews() {
     !S ||
     !S.economy ||
     typeof publishNews !== 'function'
-  ) {
-    return;
-  }
+  ) return;
 
-  /*
-     Não publicar notícia econômica todo mês.
-  */
+  if (Math.random() > .14) return;
 
-  if (Math.random() > .15) {
-    return;
-  }
+  const result = Number(S.economy.monthlyResult) || 0;
+  const deficit = Number(S.economy.deficitMonths) || 0;
+  const cash = Number(S.b) || 0;
 
-  const E = S.economy;
-  const result =
-    Number(E.monthlyResult) || 0;
-
-  const deficit =
-    Number(E.deficitMonths) || 0;
-
-  const cash =
-    Number(S.b) || 0;
-
-  if (deficit >= 2) {
+  if (deficit >= 3) {
     publishNews(
       'Economia',
-      'Prefeitura enfrenta pressão nas contas',
-      `O município registra ${deficit} mês(es) consecutivo(s) de resultado negativo.`
+      'Contas municipais entram no radar',
+      `A prefeitura acumula ${deficit} mês(es) consecutivo(s) de resultado financeiro negativo.`
     );
-
     return;
   }
 
-  if (
-    result > 0 &&
-    cash > 8000
-  ) {
+  if (result > 0 && cash > 8000) {
     publishNews(
       'Economia',
-      'Município encerra período com resultado positivo',
-      'As contas municipais apresentaram resultado positivo no período.'
+      'Município fecha período com resultado positivo',
+      'As contas municipais registraram resultado positivo no período.'
     );
-
     return;
   }
 
   if (cash <= 2500) {
     publishNews(
       'Economia',
-      'Caixa municipal entra em nível de atenção',
+      'Caixa municipal exige atenção',
       'A administração acompanha de perto a situação financeira do município.'
     );
   }
@@ -466,36 +225,22 @@ function newGame(diff) {
   const D = DIFF[diff];
 
   const ind = {};
+  K.forEach(k => ind[k] = Math.round(rnd(38, 62)));
 
-  K.forEach(k => {
-    ind[k] =
-      Math.round(rnd(38, 62));
-  });
-
-  ind.t =
-    Math.round(rnd(45, 65));
-
-  ind.p =
-    Math.round(rnd(50, 62));
+  ind.t = Math.round(rnd(45, 65));
+  ind.p = Math.round(rnd(50, 62));
 
   S = {
     diff,
-
     b: D.b,
-
     ind,
-
     turn: 0,
 
     recent: [],
     pending: [],
-
     flags: {},
-
     catSpend: {},
-
     feed: [],
-
     yl: [],
     tl: [],
 
@@ -507,7 +252,6 @@ function newGame(diff) {
     spent: 0,
     gain: 0,
     dec: 0,
-
     evs: 0,
     crises: 0,
     zero: 0,
@@ -519,9 +263,7 @@ function newGame(diff) {
 
     advisor: null,
 
-    council:
-      createCouncil(0),
-
+    council: createCouncil(0),
     projects: [],
     news: [],
     votes: [],
@@ -530,7 +272,8 @@ function newGame(diff) {
     plN: 0,
 
     /*
-       Economia 2.0 passa a fazer parte do save principal.
+       Economia 2.0 fica dentro do mesmo save.
+       O economy.js fará a normalização completa.
     */
     economy: {}
   };
@@ -538,7 +281,6 @@ function newGame(diff) {
   ensureGameEconomy();
 
   save();
-
   startGame();
 }
 
@@ -546,68 +288,44 @@ function newGame(diff) {
 /* ---------- PRÓXIMO TURNO ---------- */
 
 function nextTurn() {
-  if (S.turn >= 48) {
-    return endGame();
-  }
+  if (S.turn >= 48) return endGame();
 
   const D = DIFF[S.diff];
 
   /*
-   * ================================================================
-   * 1. FECHAMENTO FINANCEIRO
-   * ================================================================
+   * IMPORTANTE:
+   * O calendário original é preservado.
    *
-   * economy.js é o único responsável por:
-   * - receitas
-   * - despesas
-   * - resultado
-   * - déficit
-   * - histórico
-   * - caixa
-   *
-   * NÃO colocar aqui:
-   *
-   * S.b += revenue() - expenses();
-   *
-   * Isso causaria dupla contagem.
+   * closeMonth() continua sendo chamado UMA vez.
+   * Não fazemos S.turn++ aqui.
+   * Não calculamos receita/despesa manualmente.
    */
-
   ensureGameEconomy();
-
-  const monthResult =
-    closeMonth();
-
-  if (monthResult) {
-    S.bal =
-      Number(monthResult.result) || 0;
-  }
+  closeMonth();
 
   /*
-   * ================================================================
-   * 2. DESGASTE NATURAL
-   * ================================================================
+   * Consequências financeiras entram logo depois
+   * do fechamento do mês.
    */
+  applyFinancialConsequences();
 
-  ['s','e','i','a','r'].forEach(k => {
-    S.ind[k] =
-      clamp(
-        S.ind[k] -
-        rnd(.3, 1)
-      );
-  });
+  /*
+   * DESGASTE NATURAL — ORIGINAL
+   */
+  ['s','e','i','a','r'].forEach(k =>
+    S.ind[k] = clamp(
+      S.ind[k] - rnd(.3, 1)
+    )
+  );
 
   S.ind.m =
     clamp(
-      S.ind.m -
-      rnd(0, .5)
+      S.ind.m - rnd(0, .5)
     );
 
   /*
-   * ================================================================
-   * 3. POPULARIDADE
-   * ================================================================
+   * POPULARIDADE — ORIGINAL
    */
-
   const core =
     (
       S.ind.s +
@@ -616,56 +334,45 @@ function nextTurn() {
       S.ind.a
     ) / 4;
 
-  let popularityDelta =
-    (core - 50) / 40 +
-    (S.ind.t - 50) / 80 -
-    (S.b < 1500 ? 1.5 : 0) +
-    rnd(-.6, .6);
-
-  /*
-     Economia 2.0 acrescenta apenas pequenas pressões.
-  */
-
-  if (
-    S.economy &&
-    S.economy.deficitMonths >= 3
-  ) {
-    popularityDelta -= .15;
-  }
-
-  if (
-    S.economy &&
-    S.economy.deficitMonths >= 4
-  ) {
-    popularityDelta -= .20;
-  }
-
-  if (
-    S.b <= 2500
-  ) {
-    popularityDelta -= .15;
-  }
-
   S.ind.p =
     clamp(
       S.ind.p +
-      popularityDelta
+      (core - 50) / 40 +
+      (S.ind.t - 50) / 80 -
+      (S.b < 1500 ? 1.5 : 0) +
+      rnd(-.6, .6)
     );
 
   /*
-   * ================================================================
-   * 4. PROJETOS
-   * ================================================================
+   * EVENTO DE IMPACTO — ORIGINAL
    */
+  if (Math.random() < D.imp) {
+    const m =
+      IMP[
+        Math.floor(
+          Math.random() * IMP.length
+        )
+      ];
 
+    apply(fx(m[1]));
+
+    feed(m[0]);
+
+    toast(
+      'y',
+      'ATENÇÃO',
+      m[0]
+    );
+  }
+
+  /*
+   * PROJETOS — ORIGINAL
+   */
   updateProjects();
 
   /*
-   * ================================================================
-   * 5. CÂMARA
-   * ================================================================
+   * CÂMARA — ORIGINAL
    */
-
   S.council.forEach(v => {
     v.sup *= .8;
 
@@ -678,56 +385,16 @@ function nextTurn() {
   });
 
   /*
-     Economia começa a pesar na relação institucional.
-  */
-
+   * ECONOMIA → CÂMARA
+   *
+   * Pequeno impacto adicional, sem substituir
+   * a lógica original.
+   */
   applyFinancialCouncilPressure();
 
   /*
-   * ================================================================
-   * 6. CONSEQUÊNCIAS DA SITUAÇÃO FINANCEIRA
-   * ================================================================
+   * NOTÍCIA ORIGINAL
    */
-
-  applyFinancialConsequences();
-
-  applyFinancialRecovery();
-
-  /*
-   * ================================================================
-   * 7. IMPACTOS ALEATÓRIOS JÁ EXISTENTES
-   * ================================================================
-   */
-
-  if (
-    Math.random() < D.imp
-  ) {
-    const m =
-      IMP[
-        Math.floor(
-          Math.random() * IMP.length
-        )
-      ];
-
-    apply(
-      fx(m[1])
-    );
-
-    feed(m[0]);
-
-    toast(
-      'y',
-      'ATENÇÃO',
-      m[0]
-    );
-  }
-
-  /*
-   * ================================================================
-   * 8. NOTÍCIAS
-   * ================================================================
-   */
-
   if (
     S.ind.p >= 70 &&
     Math.random() < .12
@@ -740,62 +407,37 @@ function nextTurn() {
   }
 
   /*
-     Notícias econômicas aparecem somente em situações relevantes.
-  */
-
+   * NOTÍCIA ECONÔMICA OCASIONAL
+   */
   financialNews();
 
   /*
-   * ================================================================
-   * 9. MENOR CAIXA
-   * ================================================================
+   * MENOR CAIXA — ORIGINAL
    */
-
-  if (
-    S.b < S.minB
-  ) {
+  if (S.b < S.minB) {
     S.minB = S.b;
     S.minT = S.turn;
   }
 
   /*
-   * ================================================================
-   * 10. ESTATÍSTICAS
-   * ================================================================
+   * SAVE
+   *
+   * Economia está dentro de S,
+   * portanto é salva junto com o restante.
    */
-
-  if (
-    monthResult &&
-    Number(monthResult.result) < 0
-  ) {
-    S.dec++;
-  }
-
-  /*
-   * ================================================================
-   * 11. SAVE
-   * ================================================================
-   */
-
   save();
 
   /*
-   * ================================================================
-   * 12. INTERFACE
-   * ================================================================
+   * INTERFACE — ORIGINAL
    */
-
   render();
 
   /*
-   * ================================================================
-   * 13. EVENTO
-   * ================================================================
+   * EVENTO — ORIGINAL
+   *
+   * NÃO alteramos o mecanismo que avança o calendário.
    */
-
-  showEvent(
-    pick()
-  );
+  showEvent(pick());
 }
 
 
@@ -839,9 +481,7 @@ function toast(k, title, text) {
   while (
     $('#toasts').children.length > 3
   ) {
-    $('#toasts')
-      .firstChild
-      .remove();
+    $('#toasts').firstChild.remove();
   }
 }
 
@@ -892,17 +532,19 @@ function hot(a) {
 
 function buildInds() {
   $('#inds').innerHTML =
-    IND.map(x =>
-      `<div class="ind" id="i-${x[0]}">
-        <div class="h">
-          <span>${x[2]} ${x[1]}</span>
-        </div>
-        <div class="v"></div>
-        <div class="bar">
-          <i></i>
-        </div>
-      </div>`
-    ).join('');
+    IND
+      .map(x =>
+        `<div class="ind" id="i-${x[0]}">
+          <div class="h">
+            <span>${x[2]} ${x[1]}</span>
+          </div>
+          <div class="v"></div>
+          <div class="bar">
+            <i></i>
+          </div>
+        </div>`
+      )
+      .join('');
 }
 
 
@@ -914,16 +556,8 @@ function render() {
       ? 'Fim do mandato'
       : `Ano ${y} — ${MES[S.turn % 12]}`;
 
-  /*
-   * CAIXA
-   */
-
   $('#budget').textContent =
     fmt(S.b);
-
-  /*
-   * INDICADORES
-   */
 
   IND.forEach(x => {
     const v =
@@ -986,61 +620,31 @@ function render() {
   zones();
 
   /*
-   * ================================================================
-   * ECONOMIA 2.0 NA INTERFACE ATUAL
-   * ================================================================
+   * Mantemos os indicadores financeiros
+   * existentes exatamente como estavam.
+   */
+  $('#fRec').textContent =
+    fmt(S.rec);
+
+  $('#fGas').textContent =
+    fmt(S.spent + S.exp);
+
+  $('#fDes').textContent =
+    fmt(expenses());
+
+  $('#fRev').textContent =
+    fmt(revenue());
+
+  /*
+   * Se o HTML possuir elementos específicos
+   * da Economia 2.0, eles são atualizados.
+   * Se não possuir, nada acontece.
    */
 
   ensureGameEconomy();
 
   const E =
     S.economy || {};
-
-  /*
-     Mantém os elementos antigos funcionando.
-  */
-
-  $('#fRec').textContent =
-    fmt(
-      typeof E.monthlyRevenue === 'number'
-        ? E.monthlyRevenue
-        : S.rec
-    );
-
-  $('#fGas').textContent =
-    fmt(
-      (
-        typeof E.monthlyExpenses === 'number'
-          ? E.monthlyExpenses
-          : 0
-      ) +
-      S.spent +
-      (
-        typeof S.exp === 'number'
-          ? S.exp
-          : 0
-      )
-    );
-
-  /*
-     Projeção / despesas atuais.
-     O cálculo continua sendo do economy.js.
-  */
-
-  $('#fDes').textContent =
-    fmt(
-      expenses()
-    );
-
-  $('#fRev').textContent =
-    fmt(
-      revenue()
-    );
-
-  /*
-     Se futuramente o HTML receber elementos específicos
-     da Economia 2.0, eles passam a funcionar automaticamente.
-  */
 
   const statusEl =
     $('#financialStatus');
@@ -1055,9 +659,7 @@ function render() {
 
   if (resultEl) {
     resultEl.textContent =
-      fmt(
-        E.monthlyResult || 0
-      );
+      fmt(E.monthlyResult || 0);
   }
 
   const deficitEl =
@@ -1073,16 +675,8 @@ function render() {
 
   if (reserveEl) {
     reserveEl.textContent =
-      fmt(
-        E.reserve || 0
-      );
+      fmt(E.reserve || 0);
   }
-
-  /*
-   * ================================================================
-   * NOTÍCIAS
-   * ================================================================
-   */
 
   $('#feed').innerHTML =
     S.news.length
@@ -1121,11 +715,6 @@ function screen(id) {
 
 
 function startGame() {
-  /*
-     Inicializa Economia 2.0 também quando
-     o jogo é carregado de um save antigo.
-  */
-
   ensureGameEconomy();
 
   screen('game');
@@ -1324,25 +913,18 @@ function balance() {
     a =>
       a.length
         ? '<ul>' +
-          a
-            .map(
-              t =>
-                `<li>${t}</li>`
-            )
-            .join('') +
+          a.map(
+            t => `<li>${t}</li>`
+          ).join('') +
           '</ul>'
         : '<p>Nada a destacar.</p>';
-
-  /*
-     Economia 2.0 no balanço anual.
-  */
 
   ensureGameEconomy();
 
   const E =
-    S.economy;
+    S.economy || {};
 
-  const financeBlock =
+  const finance =
     `<h4>Situação financeira</h4>
     <div class="stats">
 
@@ -1358,7 +940,7 @@ function balance() {
 
       <div class="stat">
         <b>${fmt(E.monthlyResult || 0)}</b>
-        <span>Resultado do último mês</span>
+        <span>Resultado financeiro</span>
       </div>
 
       <div class="stat">
@@ -1367,8 +949,9 @@ function balance() {
       </div>
 
     </div>
+
     <p>
-      Situação financeira:
+      Situação financeira atual:
       <strong>${financialStatus()}</strong>.
     </p>`;
 
@@ -1404,7 +987,7 @@ function balance() {
 
     </div>
 
-    ${financeBlock}
+    ${finance}
 
     <h4>Principais decisões</h4>
     ${ul(
@@ -1449,9 +1032,7 @@ function balance() {
   $('#nextY').onclick =
     () => {
       S.bal = 0;
-
-      S.snap =
-        { ...S.ind };
+      S.snap = { ...S.ind };
 
       save();
 
@@ -1472,18 +1053,12 @@ function financialReportData() {
   ensureGameEconomy();
 
   const E =
-    S.economy;
+    S.economy || {};
 
   let totalRevenue = 0;
   let totalExpenses = 0;
 
-  /*
-     Histórico oficial da Economia 2.0.
-  */
-
-  if (
-    Array.isArray(E.history)
-  ) {
+  if (Array.isArray(E.history)) {
     E.history.forEach(h => {
       totalRevenue +=
         Number(h.totalRevenue) || 0;
@@ -1494,28 +1069,17 @@ function financialReportData() {
   }
 
   /*
-     Fallback para dados antigos.
+     Fallback para saves antigos.
   */
-
-  if (
-    totalRevenue === 0 &&
-    Number(S.rec)
-  ) {
+  if (!totalRevenue && S.rec) {
     totalRevenue =
-      Number(S.rec);
+      Number(S.rec) || 0;
   }
 
-  if (
-    totalExpenses === 0 &&
-    Number(S.exp)
-  ) {
+  if (!totalExpenses && S.exp) {
     totalExpenses =
-      Number(S.exp);
+      Number(S.exp) || 0;
   }
-
-  /*
-     Convênios efetivamente recebidos.
-  */
 
   const agreements =
     Array.isArray(E.log)
@@ -1527,15 +1091,10 @@ function financialReportData() {
           )
           .reduce(
             (a, x) =>
-              a +
-              (Number(x.value) || 0),
+              a + (Number(x.value) || 0),
             0
           )
       : 0;
-
-  /*
-     Emendas utilizadas.
-  */
 
   const amendments =
     Array.isArray(E.log)
@@ -1547,17 +1106,14 @@ function financialReportData() {
           )
           .reduce(
             (a, x) =>
-              a +
-              (Number(x.value) || 0),
+              a + (Number(x.value) || 0),
             0
           )
       : 0;
 
   return {
     totalRevenue,
-
     totalExpenses,
-
     result:
       totalRevenue -
       totalExpenses,
@@ -1569,7 +1125,6 @@ function financialReportData() {
       Number(E.reserve) || 0,
 
     agreements,
-
     amendments,
 
     minCash:
@@ -1588,22 +1143,13 @@ function financialReportData() {
 
 function report() {
   const cats =
-    Object.entries(
-      S.catSpend
-    )
-      .filter(
-        c => c[1] > 0
-      )
-      .sort(
-        (a, b) =>
-          b[1] - a[1]
-      );
+    Object.entries(S.catSpend)
+      .filter(c => c[1] > 0)
+      .sort((a, b) => b[1] - a[1]);
 
   const sorted =
     K
-      .filter(
-        k => k !== 'p'
-      )
+      .filter(k => k !== 'p')
       .sort(
         (a, b) =>
           S.ind[b] -
@@ -1618,10 +1164,6 @@ function report() {
 
   const p = [];
 
-  /*
-     RELATÓRIO ORIGINAL
-  */
-
   p.push(
     cats.length >= 2
       ? `Durante o mandato, a administração concentrou seus investimentos em ${cats[0][0].toLowerCase()} e ${cats[1][0].toLowerCase()}, em um total de ${fmt(S.spent)} aplicados em ${S.dec} decisões.`
@@ -1632,15 +1174,11 @@ function report() {
     `O melhor desempenho ficou com ${LBL[best].toLowerCase()} (${Math.round(S.ind[best])}/100), enquanto ${LBL[worst].toLowerCase()} terminou em ${Math.round(S.ind[worst])}/100.`
   );
 
-  if (
-    S.b > 8000
-  ) {
+  if (S.b > 8000) {
     p.push(
       `As contas fecharam com folga (${fmt(S.b)}), o que pode indicar prudência, mas também investimentos que deixaram de ser feitos.`
     );
-  } else if (
-    S.b < 1500
-  ) {
+  } else if (S.b < 1500) {
     p.push(
       `O caixa terminou no limite (${fmt(S.b)}), sendo o momento mais apertado em ${MES[S.minT % 12]} do ano ${Math.min(4, Math.floor(S.minT / 12) + 1)}.`
     );
@@ -1656,9 +1194,7 @@ function report() {
       : 'Nenhuma crise grave precisou ser enfrentada.'
   );
 
-  if (
-    S.zero >= 12
-  ) {
+  if (S.zero >= 12) {
     p.push(
       `Em ${S.zero} ocasiões, a opção foi não gastar ou adiar, o que aliviou o caixa mas deixou problemas se acumularem.`
     );
@@ -1681,33 +1217,32 @@ function report() {
   );
 
   /*
-     ================================================================
-     ECONOMIA 2.0 — ADIÇÃO AO RELATÓRIO
-     ================================================================
-  */
-
+   * ECONOMIA 2.0
+   */
   const F =
     financialReportData();
 
   p.push(
-    `Ao longo do mandato, o município registrou aproximadamente ${fmt(F.totalRevenue)} em receitas e ${fmt(F.totalExpenses)} em despesas, resultando em um saldo acumulado de ${fmt(F.result)}.`
+    `Ao longo do mandato, foram registrados ${fmt(F.totalRevenue)} em receitas e ${fmt(F.totalExpenses)} em despesas, com resultado financeiro acumulado de ${fmt(F.result)}.`
   );
 
   p.push(
-    `Foram registrados ${F.deficitMonths} mês(es) consecutivo(s) de déficit no momento do encerramento, com menor caixa de ${fmt(F.minCash)} e reserva final de ${fmt(F.reserve)}.`
+    `O município passou por ${F.deficitMonths} mês(es) consecutivo(s) de déficit no momento final da gestão, e o menor caixa registrado foi de ${fmt(F.minCash)}.`
   );
 
-  if (
-    F.agreements > 0
-  ) {
+  if (F.reserve > 0) {
     p.push(
-      `A gestão recebeu ${fmt(F.agreements)} em recursos de convênios.`
+      `A gestão encerrou o mandato com ${fmt(F.reserve)} mantidos em reserva.`
     );
   }
 
-  if (
-    F.amendments > 0
-  ) {
+  if (F.agreements > 0) {
+    p.push(
+      `Foram recebidos ${fmt(F.agreements)} em recursos de convênios.`
+    );
+  }
+
+  if (F.amendments > 0) {
     p.push(
       `Também foram utilizados ${fmt(F.amendments)} em recursos de emendas.`
     );
@@ -1721,26 +1256,16 @@ function report() {
 }
 
 
-/* ---------- FIM DO MANDATO ---------- */
-
 function endGame() {
-  /*
-     Garante que os últimos dados financeiros
-     estejam disponíveis no relatório.
-  */
-
   ensureGameEconomy();
 
   S.done = 1;
 
   save();
-
   deleteSave();
 
   screen('end');
-
   closeModal();
-
   hot(null);
 
   const st =
@@ -1777,10 +1302,6 @@ function endGame() {
       ||
       '<p>Nenhum acontecimento de grande porte.</p>';
 
-  /*
-     Dados financeiros finais.
-  */
-
   const F =
     financialReportData();
 
@@ -1804,7 +1325,7 @@ function endGame() {
 
       ${st(
         F.deficitMonths,
-        'MESES DE DÉFICIT'
+        'DÉFICITS CONSECUTIVOS'
       )}
 
       ${st(
@@ -1843,30 +1364,11 @@ function endGame() {
     ${financialStats}
 
     <div class="stats">
-      ${st(
-        S.dec,
-        'Decisões tomadas'
-      )}
-
-      ${st(
-        S.evs,
-        'Eventos enfrentados'
-      )}
-
-      ${st(
-        S.crises,
-        'Crises enfrentadas'
-      )}
-
-      ${st(
-        fmt(S.spent),
-        'Investimentos realizados'
-      )}
-
-      ${st(
-        fmt(S.gain),
-        'Economias e receitas extras'
-      )}
+      ${st(S.dec, 'Decisões tomadas')}
+      ${st(S.evs, 'Eventos enfrentados')}
+      ${st(S.crises, 'Crises enfrentadas')}
+      ${st(fmt(S.spent), 'Investimentos realizados')}
+      ${st(fmt(S.gain), 'Economias e receitas extras')}
     </div>
 
     <h3>Relatório final</h3>
@@ -1965,8 +1467,8 @@ const CI = {
   'Saúde':'🏥',
   'Educação':'🏫',
   'Infraestrutura':'🚧',
-  'Zona rural':'🌾',
   'Água':'💧',
+  'Zona rural':'🌾',
   'Economia':'💼',
   'Meio ambiente':'🌱',
   'Cultura':'🎭',
@@ -2004,12 +1506,11 @@ function zones() {
       $('#a-' + k);
 
     const v =
-      ZN[k][1]
-        .reduce(
-          (a, x) =>
-            a + S.ind[x],
-          0
-        ) /
+      ZN[k][1].reduce(
+        (a, x) =>
+          a + S.ind[x],
+        0
+      ) /
       ZN[k][1].length;
 
     const st =
@@ -2028,19 +1529,17 @@ function zones() {
       );
 
     z.innerHTML =
-      `<span class="ic">
-        ${ZN[k][0]}
-      </span>
-      <small>
-        ${ZN[k][2]}
-        ${
-          st === 'bad'
-            ? '⚠️'
-            : st === 'ok'
-              ? '✨'
-              : ''
-        }
-      </small>`;
+      `<span class="ic">${ZN[k][0]}</span>
+       <small>
+         ${ZN[k][2]}
+         ${
+           st === 'bad'
+             ? '⚠️'
+             : st === 'ok'
+               ? '✨'
+               : ''
+         }
+       </small>`;
   }
 
   const w =
