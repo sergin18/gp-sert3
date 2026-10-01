@@ -1181,6 +1181,442 @@ function mandateScoreDetails() {
       contribution: (S.ind[k] || 0) * weight
     }));
 }
+/* =========================================================
+   ARTE COMPARTILHÁVEL — RESULTADO FINAL DO MANDATO
+   ========================================================= */
+
+async function shareMandateResult() {
+
+  const score = mandateScore();
+  const label = mandateScoreLabel(score);
+
+  const canvas = document.createElement('canvas');
+
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const ctx = canvas.getContext('2d');
+
+  /* ---------- FUNDO ---------- */
+
+  const bg = ctx.createLinearGradient(
+    0,
+    0,
+    1080,
+    1350
+  );
+
+  bg.addColorStop(0, '#173f30');
+  bg.addColorStop(.48, '#1f5d43');
+  bg.addColorStop(1, '#0f3024');
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, 1080, 1350);
+
+  /* ---------- DECORAÇÃO ---------- */
+
+  ctx.globalAlpha = .08;
+
+  ctx.fillStyle = '#f1e6cb';
+
+  ctx.beginPath();
+  ctx.arc(920, 130, 190, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(100, 1180, 250, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalAlpha = 1;
+
+  /* ---------- TÍTULO ---------- */
+
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#f1e6cb';
+
+  ctx.font =
+    '800 32px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    'SERTÂNIA: DESAFIO DE GESTÃO',
+    540,
+    90
+  );
+
+  ctx.font =
+    '700 20px "Segoe UI", sans-serif';
+
+  ctx.globalAlpha = .7;
+
+  ctx.fillText(
+    'RESULTADO FINAL DO MANDATO',
+    540,
+    125
+  );
+
+  ctx.globalAlpha = 1;
+
+  /* ---------- CARTÃO CENTRAL ---------- */
+
+  const cardX = 70;
+  const cardY = 165;
+  const cardW = 940;
+  const cardH = 1040;
+
+  ctx.fillStyle = '#fbf6e8';
+
+  ctx.beginPath();
+  ctx.roundRect(
+    cardX,
+    cardY,
+    cardW,
+    cardH,
+    32
+  );
+
+  ctx.fill();
+
+  /* ---------- NOTA ---------- */
+
+  let scoreColor = '#b23a2e';
+
+  if (score >= 8) {
+    scoreColor = '#1f9d62';
+  } else if (score >= 6) {
+    scoreColor = '#c8902f';
+  }
+
+  ctx.strokeStyle = scoreColor;
+  ctx.lineWidth = 18;
+
+  ctx.beginPath();
+  ctx.arc(
+    540,
+    370,
+    145,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.stroke();
+
+  ctx.fillStyle = '#2a2118';
+
+  ctx.font =
+    '900 92px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    score.toFixed(1),
+    540,
+    395
+  );
+
+  ctx.font =
+    '700 28px "Segoe UI", sans-serif';
+
+  ctx.fillStyle = '#6d5d47';
+
+  ctx.fillText(
+    '/10',
+    540,
+    435
+  );
+
+  /* ---------- CLASSIFICAÇÃO ---------- */
+
+  ctx.fillStyle = scoreColor;
+
+  ctx.font =
+    '900 34px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    label.toUpperCase(),
+    540,
+    505
+  );
+
+  ctx.fillStyle = '#6d5d47';
+
+  ctx.font =
+    '500 19px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    'Desempenho geral da gestão',
+    540,
+    538
+  );
+
+  /* ---------- ÁREAS ---------- */
+
+  const details =
+    mandateScoreDetails();
+
+  let y = 600;
+
+  ctx.textAlign = 'left';
+
+  details.forEach(d => {
+
+    const value =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Number(d.value) || 0
+        )
+      );
+
+    let barColor = '#b23a2e';
+
+    if (value >= 70) {
+      barColor = '#1f9d62';
+    } else if (value >= 50) {
+      barColor = '#c8902f';
+    }
+
+    /* nome */
+
+    ctx.fillStyle = '#2a2118';
+
+    ctx.font =
+      '700 19px "Segoe UI", sans-serif';
+
+    ctx.fillText(
+      d.label,
+      125,
+      y
+    );
+
+    /* peso */
+
+    ctx.fillStyle = '#8a7a62';
+
+    ctx.font =
+      '600 15px "Segoe UI", sans-serif';
+
+    ctx.textAlign = 'right';
+
+    ctx.fillText(
+      `Peso ${Math.round(d.weight * 100)}%`,
+      955,
+      y
+    );
+
+    ctx.textAlign = 'left';
+
+    /* fundo da barra */
+
+    ctx.fillStyle = '#e4d3aa';
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+      125,
+      y + 13,
+      830,
+      13,
+      7
+    );
+
+    ctx.fill();
+
+    /* preenchimento */
+
+    ctx.fillStyle = barColor;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+      125,
+      y + 13,
+      830 * (value / 100),
+      13,
+      7
+    );
+
+    ctx.fill();
+
+    y += 67;
+  });
+
+  /* ---------- RESUMO ---------- */
+
+  const summaryY = 1090;
+
+  ctx.strokeStyle = '#e4d3aa';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    125,
+    summaryY - 25
+  );
+
+  ctx.lineTo(
+    955,
+    summaryY - 25
+  );
+
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#6d5d47';
+
+  ctx.font =
+    '700 16px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    `ORÇAMENTO FINAL`,
+    300,
+    summaryY + 10
+  );
+
+  ctx.fillText(
+    `APROVAÇÃO POPULAR`,
+    780,
+    summaryY + 10
+  );
+
+  ctx.fillStyle = '#1f5d43';
+
+  ctx.font =
+    '900 27px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    fmt(S.b),
+    300,
+    summaryY + 45
+  );
+
+  ctx.fillText(
+    `${Math.round(S.ind.p)}%`,
+    780,
+    summaryY + 45
+  );
+
+  /* ---------- RODAPÉ ---------- */
+
+  ctx.fillStyle = '#8a7a62';
+
+  ctx.font =
+    '600 15px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    'Uma gestão. Quatro anos. Muitas decisões.',
+    540,
+    1270
+  );
+
+  ctx.font =
+    '700 13px "Segoe UI", sans-serif';
+
+  ctx.fillText(
+    'DESENVOLVIDO POR SERG!N',
+    540,
+    1298
+  );
+
+  ctx.textAlign = 'left';
+
+  /* ---------- PNG ---------- */
+
+  const blob =
+    await new Promise(resolve =>
+      canvas.toBlob(
+        resolve,
+        'image/png',
+        1
+      )
+    );
+
+  if (!blob) {
+    toast(
+      'r',
+      'ERRO',
+      'Não foi possível gerar a imagem.'
+    );
+
+    return;
+  }
+
+  const file =
+    new File(
+      [blob],
+      'resultado-mandato-sertania.png',
+      {
+        type: 'image/png'
+      }
+    );
+
+  /* ---------- COMPARTILHAMENTO ---------- */
+
+  if (
+    navigator.share &&
+    navigator.canShare &&
+    navigator.canShare({
+      files: [file]
+    })
+  ) {
+
+    try {
+
+      await navigator.share({
+        title:
+          'Sertânia: Desafio de Gestão',
+
+        text:
+          `Meu resultado no mandato: ${score.toFixed(1)}/10 — ${label}.`,
+
+        files: [file]
+      });
+
+      return;
+
+    } catch (err) {
+
+      if (
+        err &&
+        err.name === 'AbortError'
+      ) {
+        return;
+      }
+
+    }
+  }
+
+  /* ---------- FALLBACK: DOWNLOAD ---------- */
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement('a');
+
+  a.href = url;
+
+  a.download =
+    'resultado-mandato-sertania.png';
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  setTimeout(
+    () => URL.revokeObjectURL(url),
+    1000
+  );
+
+  toast(
+    'g',
+    'ARTE GERADA',
+    'A imagem do resultado foi salva.'
+  );
+}
 
 function report() {
   const cats =
@@ -1549,33 +1985,26 @@ function endGame() {
       “Administrar uma cidade não é escolher entre o certo e o errado. É decidir o que fazer quando não é possível fazer tudo.”
     </p>
 
-    <div
-      class="btns"
-      style="justify-content:center"
-    >
+  <div
+  class="btns"
+  style="justify-content:center"
+>
+  <button class="btn share-result" id="shareResult">
+    📸 COMPARTILHAR RESULTADO
+  </button>
 
-      <button
-        class="btn main"
-        id="again"
-      >
-        JOGAR NOVAMENTE
-      </button>
+  <button class="btn main" id="again">
+    JOGAR NOVAMENTE
+  </button>
 
-      <button
-        class="btn main"
-        id="newE"
-      >
-        NOVO MANDATO
-      </button>
+  <button class="btn main" id="newE">
+    NOVO MANDATO
+  </button>
 
-      <button
-        class="btn"
-        id="menuE"
-      >
-        Menu
-      </button>
-
-    </div>`;
+  <button class="btn" id="menuE">
+    Menu
+  </button>
+</div>
 
   const d =
     S.diff;
