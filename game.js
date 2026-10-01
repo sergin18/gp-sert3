@@ -2009,6 +2009,9 @@ function endGame() {
   const d =
     S.diff;
 
+  $('#shareResult').onclick =
+    () => shareMandateResult();
+
   $('#again').onclick =
     () => newGame(d);
 
