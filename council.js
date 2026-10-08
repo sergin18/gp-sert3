@@ -100,7 +100,7 @@ function finishVote(p, y, n, vs) {
   vs.forEach(o => { if (o.x === 'SIM') o.v.rel = clamp(o.v.rel + .5); else if (o.x === 'NÃO' && ok) o.v.rel = clamp(o.v.rel - .5); });
   p.votes = { y, n }; S.votes.push({ t, y, n });
   if (ok) { p.st = 'exec'; apply(fx('p1')); publishNews('Câmara', 'Câmara aprova ' + t.toLowerCase(), 'Projeto segue agora para execução pela Prefeitura.'); }
-  else { p.st = 'rejeitado'; S.blocked[p.pid] = S.turn + 6; apply(fx('p-2')); publishNews('Câmara', 'Câmara rejeita projeto apresentado pela Prefeitura', 'Proposta não alcançou votos suficientes durante a sessão.'); }
+  else { p.st = 'rejeitado'; if (typeof polOnRejected === 'function') polOnRejected(); S.blocked[p.pid] = S.turn + 6; apply(fx('p-2')); publishNews('Câmara', 'Câmara rejeita projeto apresentado pela Prefeitura', 'Proposta não alcançou votos suficientes durante a sessão.'); }
   S.tl.push({ y: year(), m: S.turn % 12, t: (ok ? 'Aprovado: ' : 'Rejeitado: ') + t + ` (${y}×${n})` });
   save(); render();
   show(`<div class="vtitle">RESULTADO</div><div class="vscore">SIM ${y} × NÃO ${n}</div>${note}<h3>${ok ? '🟢 PROJETO APROVADO' : '🔴 PROJETO REJEITADO'}</h3><p>${ok ? 'A Câmara Municipal aprovou o projeto. O projeto seguirá para execução.' : 'A proposta não obteve votos suficientes. O projeto não poderá ser executado neste momento.'}</p>

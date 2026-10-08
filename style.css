@@ -387,3 +387,15 @@ h2{margin:6px 0 16px;font-size:1.2rem;letter-spacing:.35em;color:var(--earth)}
   background: #e05252;
   box-shadow: 0 0 10px rgba(224,82,82,.35);
 }
+
+/* GOVERNABILIDADE (politics.js) */
+.polbar{height:8px;background:#0002;border-radius:4px;overflow:hidden;margin:4px 0}
+.polbar i{display:block;height:100%;background:var(--blue);transition:width .4s}
+.polbar i.rel{background:var(--green2)}.polbar i.int{background:var(--ochre)}
+.polbar i.gov-g{background:var(--green2)}.polbar i.gov-y{background:var(--ochre)}.polbar i.gov-r{background:var(--red)}
+.st-g{color:var(--green2)}.st-y{color:var(--ochre)}.st-r{color:var(--red)}
+.polgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:10px 0}
+.polv{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#fff;border:1px solid var(--sand2);border-radius:12px;padding:8px 10px;color:var(--ink)}
+.polv:hover{border-color:var(--green)}
+.polv small{color:#6d5d47;font-size:.78rem}
+.pollist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px;font-size:.9rem;margin:10px 0}

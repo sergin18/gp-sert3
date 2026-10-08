@@ -203,7 +203,7 @@ function choose(e, i) {
   const x = o[3] || {}, c = cost(o), before = { ...S.ind };
   S.b -= c; S.spent += c; S.dec++; S.evs++; if (c === 0) S.zero++;
   S.catSpend[e.cat] = (S.catSpend[e.cat] || 0) + c;
-  if (e.g === 3) S.crises++;
+  if (e.g === 3) { S.crises++; if (typeof polOnCrisis === 'function') polOnCrisis(3); }
   apply(fx(o[2]));
   if (e.id === 'chuvas' || e.id === 'chuvaBoa') S.rain = S.turn + 1;
   let extra = '';
