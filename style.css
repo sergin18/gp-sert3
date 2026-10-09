@@ -399,3 +399,21 @@ h2{margin:6px 0 16px;font-size:1.2rem;letter-spacing:.35em;color:var(--earth)}
 .polv:hover{border-color:var(--green)}
 .polv small{color:#6d5d47;font-size:.78rem}
 .pollist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px;font-size:.9rem;margin:10px 0}
+
+/* TERRITÓRIO (territory.js) */
+.ttabs{display:flex;gap:8px;margin:8px 0 12px}
+.ttabs button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--sand2);background:var(--paper);font-weight:700;color:var(--green)}
+.ttabs button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.tmap{position:relative;height:420px;border-radius:var(--r);border:1px solid var(--sand2);overflow:hidden}
+.tm-city{background:repeating-linear-gradient(0deg,#0000 0 38px,#0001 38px 40px),repeating-linear-gradient(90deg,#0000 0 38px,#0001 38px 40px),#efe4c6}
+.tm-rural{background:radial-gradient(circle at 30% 30%,#d9c78f 0 18%,#0000 19%),radial-gradient(circle at 75% 70%,#cdb979 0 16%,#0000 17%),linear-gradient(160deg,#e8d9a8,#d6c285)}
+.tpin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:999px;border:2px solid #fff;background:var(--paper);font-size:.78rem;font-weight:700;color:var(--ink);box-shadow:0 3px 8px #0003;white-space:nowrap;transition:.15s}
+.tpin:hover{transform:translate(-50%,-50%) scale(1.08);z-index:2}
+.tpin.tdist{font-size:.88rem;padding:7px 12px}
+.tpin i{font-style:normal;background:var(--red);color:#fff;border-radius:999px;padding:0 6px;font-size:.7rem}
+.tpin em{font-style:normal}
+.tpin.tp-g{border-color:var(--green2)}.tpin.tp-y{border-color:var(--ochre)}.tpin.tp-r{border-color:var(--red);background:#fbe3df}
+.tleg{font-size:.8rem;color:#6d5d47}
+.tleg .tp-g{color:var(--green2)}.tleg .tp-y{color:var(--ochre)}.tleg .tp-r{color:var(--red)}
+.opt.tdem{border-color:var(--red)}
+@media (max-width:640px){.tmap{height:360px}.tpin{font-size:.68rem;padding:4px 7px}}

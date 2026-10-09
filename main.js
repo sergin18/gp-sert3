@@ -8,6 +8,8 @@ const ACT = { close: closeModal, cam: openCouncil, proj: openProjects, cons: ope
 
 /* Ações do módulo de governabilidade (politics.js) */
 if (typeof POL_ACT === 'object') Object.assign(ACT, POL_ACT);
+/* Ações do módulo de território (territory.js) */
+if (typeof TER_ACT === 'object') Object.assign(ACT, TER_ACT);
 
 document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) ACT[b.dataset.act](b.dataset.a, b.dataset.b); });
 
