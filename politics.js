@@ -233,7 +233,7 @@ function polRunCassationVote() {
     save();
     show(`<h2 class="st-r">MANDATO CASSADO</h2><p><b>${yes} votos</b> pela cassação.</p><div class="pollist">${list}</div>
       <p class="say">Após uma sucessão de crises políticas, aprovação em queda e perda de apoio na Câmara, o governo não conseguiu reunir votos suficientes para permanecer no cargo.</p>
-      <p><button class="btn main" data-act="polhome">Voltar ao início</button></p>`, 1, 'wide');
+      <p><button class="btn main" data-act="share">📸 Salvar foto do mandato</button> <button class="btn" data-act="polhome">Voltar ao início</button></p>`, 1, 'wide');
   } else {
     const P = S.political;
     P.pressure = Math.max(0, P.pressure - 10); P.gov = Math.max(P.gov, 30); P.lowMonths = 0;
